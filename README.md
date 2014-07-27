@@ -1,6 +1,15 @@
-wallpaper-reddit is a script that simply sets your wallpaper to the top image from (a) subreddit(s) on reddit.com.
+#About
+
+wallpaper-reddit is a Python 3.4.1 script that simply sets your wallpaper to the top image from (a) subreddit(s) on reddit.com.
 
 This is my first foray into Python, as Java is the only language I "know."  I always thought it would be cool to have some of the images from /r/earthporn and /r/spaceporn as wallpapers, and now I've automated it.
+
+#Dependencies
+- imagemagick package (just convert and identify programs)
+- curl
+- ping
+
+#Usage
 
 The script is very simple to use.  If you have not copied the script to a folder such as /usr/bin or /usr/local/bin, make sure to cd into the directory of the script.  Then, type:
 
