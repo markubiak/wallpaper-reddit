@@ -104,6 +104,9 @@ def make_dirs():
   if not os.path.exists(walldir):
     os.makedirs(walldir)
     log("~/.wallpaper created")
+  if not os.path.exists(walldir + '/blacklist.txt'):
+    with open(walldir + '/blacklist.txt', 'w') as blacklist:
+      blacklist.write('')
   if not os.path.exists(tmpdir):
     os.makedirs(tmpdir)
     log("/tmp/wallpaper-reddit created")
@@ -166,7 +169,7 @@ def make_config():
                         'cleanup': 'True' }
   config['Startup'] = { 'attempts': '10',
                         'interval': '3' }
-  config['Save'] = { 'directory': '/home/user/Pictures/Wallpapers' }
+  config['Save'] = { 'directory': '~/Pictures/Wallpapers' }
   with open(confdir + '/wallpaper-reddit.conf', 'w') as configfile:
     config.write(configfile)
 
@@ -194,7 +197,7 @@ def parse_config():
   setcmd = config.get('SetCommand', 'setcommand', fallback='')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
-  savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers')
+  savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers').replace('~', os.getenv("HOME"))
   
 #parses command-line arguments and stores them to proper global variables  
 def parse_args():
