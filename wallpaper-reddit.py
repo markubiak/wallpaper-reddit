@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 #Dependencies:
-#- imagemagick
+#- imagemagick (only 'convert' and 'identify')
 #- curl
 #- ping
 
