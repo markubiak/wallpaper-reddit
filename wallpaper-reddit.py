@@ -14,6 +14,7 @@ import json
 import shutil
 import sys
 import time
+import random
 from socket import timeout
 from urllib.error import HTTPError,URLError
 
@@ -29,6 +30,7 @@ minheight = 0
 maxlinks = 0
 resize = False
 cleanup = False
+randomsub = False
 blacklistcurrent = False
 setcmd = ''
 walldir = os.getenv("HOME") + '/.wallpaper'
@@ -104,6 +106,9 @@ def make_dirs():
   if not os.path.exists(walldir):
     os.makedirs(walldir)
     log("~/.wallpaper created")
+  if not os.path.exists(walldir + '/blacklist.txt'):
+    with open(walldir + '/blacklist.txt', 'w') as blacklist:
+      blacklist.write('')
   if not os.path.exists(tmpdir):
     os.makedirs(tmpdir)
     log("/tmp/wallpaper-reddit created")
@@ -163,10 +168,11 @@ def make_config():
                         'minheight': '768',
                         'maxlinks': '15',
                         'resize': 'False',
-                        'cleanup': 'True' }
+                        'cleanup': 'True',
+                        'random': 'False' }
   config['Startup'] = { 'attempts': '10',
                         'interval': '3' }
-  config['Save'] = { 'directory': '/home/user/Pictures/Wallpapers' }
+  config['Save'] = { 'directory': '~/Pictures/Wallpapers' }
   with open(confdir + '/wallpaper-reddit.conf', 'w') as configfile:
     config.write(configfile)
 
@@ -184,6 +190,7 @@ def parse_config():
   global startupinterval
   global startupattempts
   global savedir
+  global randomsub
   subs = config.get('Options', 'subs', fallback='earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes')
   subs = subs.split(',')
   maxlinks = config.getint('Options', 'maxlinks', fallback=15)
@@ -191,10 +198,11 @@ def parse_config():
   minheight = config.getint('Options', 'minheight', fallback=768)
   resize = config.getboolean('Options', 'resize', fallback=False)
   cleanup = config.getboolean('Options', 'cleanup', fallback=True)
+  randomsub = config.getboolean('Options', 'random', fallback=False)
   setcmd = config.get('SetCommand', 'setcommand', fallback='')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
-  savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers')
+  savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers').replace('~', os.getenv("HOME"))
   
 #parses command-line arguments and stores them to proper global variables  
 def parse_args():
@@ -209,6 +217,7 @@ def parse_args():
   parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set", action="store_true")
   parser.add_argument("--nocleanup", help="does not remove the original downloaded image from the /tmp directory after wallpaper is set", action="store_false")
   parser.add_argument("--blacklist", help="blacklists the current wallpaper and redownloads a new wallpaper", action="store_true")
+  parser.add_argument("--random", help="will pick a random subreddit from the ones provided instead of turning them into a multireddit", action="store_true")
   args = parser.parse_args()
   global subs
   global verbose
@@ -219,6 +228,7 @@ def parse_args():
   global minwidth
   global resize
   global cleanup
+  global randomsub
   global blacklistcurrent
   if not args.subreddits == []:
     subs = args.subreddits
@@ -235,6 +245,8 @@ def parse_args():
     resize = True
   if not args.nocleanup:
     cleanup = False
+  if args.random:
+    randomsub = True
   if args.blacklist:
     blacklistcurrent = True
   log("config and args parsed")
@@ -243,9 +255,12 @@ def parse_args():
 #out - string[], string[] - a list of links from the subreddits and their respective titles
 #takes in subreddits, converts them to a reddit json url, and then picks out urls and their titles
 def get_links(subreddits):
-  parsedsubs = subreddits[0]
-  for sub in subs[1:]:
-    parsedsubs = parsedsubs + '+' + sub
+  if randomsub:
+    parsedsubs = pick_random(subreddits)
+  else:
+    parsedsubs = subreddits[0]
+    for sub in subs[1:]:
+      parsedsubs = parsedsubs + '+' + sub
   url = "http://www.reddit.com/r/" + parsedsubs + ".json?limit=" + str(maxlinks)
   log("Grabbing json file " + url)
   uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7' })
@@ -393,4 +408,11 @@ def external_script():
     os.system('chmod +x ' + walldir + '/external.sh')
   os.system('bash ' + walldir + '/external.sh')
   
+#in: a list of subreddits
+#out: the name of a random subreddit
+#will pick a random sub from a list of subreddits
+def pick_random(subreddits):
+  rand = random.randint(0, len(subreddits) - 1)
+  return subreddits[rand]
+
 main()
