@@ -1,20 +1,20 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 #Dependencies:
 #- imagemagick (only 'convert' and 'identify')
 #- curl
-#- ping
 
 #import libs
 import argparse
 import configparser
-import os
-import urllib.request
+import ctypes
 import json
+import os
+import random
 import shutil
 import sys
 import time
-import random
+import urllib.request
 from socket import timeout
 from urllib.error import HTTPError,URLError
 
@@ -58,9 +58,8 @@ def main():
     if save:
       save_wallpaper()
       sys.exit(0)
-    #check to make sure the user provided subreddits (checking now so that the user doesn't have to provide a sub to save their wallpaper)
     if startup:
-      wait_for_connection('www.reddit.com', startupattempts, startupinterval)
+      wait_for_connection(startupattempts, startupinterval)
     #make sure you're actually connected to reddit
     if not connected('http://www.reddit.com'):
       print("ERROR: You do not appear to be connected to Reddit. Exiting")
@@ -72,6 +71,7 @@ def main():
     valid = choose_valid(links[0])
     valid_url = valid[0]
     title_index = valid[1]
+    title = titles[title_index].replace('\\"', '"')
     download_image(valid_url)
     #resize image if need be
     if resize:
@@ -79,7 +79,7 @@ def main():
     #move and set the wallpaper
     shutil.copyfile(tmpdir + '/download', walldir + '/wallpaper')
     #save link of original image for reference and set the wallpaper
-    save_info(valid_url, titles, title_index)
+    save_info(valid_url, title)
     set_wallpaper(setcmd)
     #cleanup
     if cleanup:
@@ -135,23 +135,44 @@ def make_save_dirs():
 def connected(url):
   try:
     uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
-    urllib.request.urlopen(uaurl,timeout=3)
+    url = urllib.request.urlopen(uaurl,timeout=3)
+    url.close()
     return True
   except (HTTPError, URLError, timeout):
+    return False
+
+#out - boolean - connection status
+#checks whether the program can connect to reddit and is not being redirected
+def check_not_redirected():
+  try:
+    #Not reloading /etc/resolv.conf, since it will have to be reloaded for the function right before this is called
+    uaurl = urllib.request.Request('http://www.reddit.com/.json', headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
+    url = urllib.request.urlopen(uaurl,timeout=3)
+    json.loads(url.read().decode("utf8"))
+    url.close()
+    return True
+  except (HTTPError, URLError, timeout, AttributeError, ValueError):
     return False
 
 #in - string, int, int - url to check for connection, how many attempts and at what interval to retry until connected
 #out - boolean - whether the connection was successfully establised
 #waits for a connection to the specified url, or returns False if no connection could be made in the time frame
-def wait_for_connection(url, tries, interval):
-  #For some reason, urllib wouldn't connect to the web if I connected to wifi while it was running.  The ping command is a workaround.
+def wait_for_connection(tries, interval):
+  log('Waiting for a connection...')
   for i in range(tries):
-    status = os.system('ping -c 1 ' + url + ' >/dev/null 2>&1')
-    #catches the exit code of the ping command.  returning 0 mens ping made a connection
-    if status == 0:
-      return True
-    else:
-      time.sleep(interval)
+    #Reloads /etc/resolv.conf
+    #credit: http://stackoverflow.com/questions/21356781/urrlib2-urlopen-name-or-service-not-known-persists-when-starting-script-witho
+    libc = ctypes.cdll.LoadLibrary('libc.so.6')
+    res_init = libc.__res_init
+    res_init()
+    log('Attempt #' + str(i + 1) + ' to connect...')
+    if connected('http://www.reddit.com'):
+      log('Connected to the internet, checking if you\'re being redirectied...')
+      if check_not_redirected():
+        log('No redirection.  Starting the main script...')
+        return True
+      log('Redirected.  Trying again...')
+    time.sleep(interval)
   return False
 
 #creates a default config file with examples in ~/.config/wallpaper-reddit
@@ -266,8 +287,13 @@ def get_links(subreddits):
   uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7' })
   response = urllib.request.urlopen(uaurl)
   content = response.read()
-  data = json.loads(content.decode("utf8"))
+  try:
+    data = json.loads(content.decode("utf8"))
+  except (AttributeError, ValueError):
+    print('Was redirected from valid Reddit formatting.  Likely a router redirect, such as a hotel or airport.  Exiting...')
+    sys.exit(0)
   dump = json.dumps(data, sort_keys=True, indent=0)
+  response.close()
   links = []
   titles = []
   for ln in dump.split('\n'):
@@ -327,6 +353,7 @@ def download_image(url):
   log("downloading " + url)
   with open(tmpdir + "/download", "wb") as local_file:
     local_file.write(f.read())
+  f.close()
   
 #in - string - command to set the wallpaper from ~/.wallpaper/wallpaper
 #uses the user-specified command to set the downloaded-then-moved wallpaper
@@ -363,10 +390,9 @@ def blacklist_current():
   with open(walldir + '/blacklist.txt', 'a') as blacklist:
     blacklist.write(url + '\n')
 
-#in - string, string[], int - a url, a list of titles, and the index of the correct title of the picture
+#in - string, string, - a url and a title
 #saves the url of the image to ~/.wallpaper/url.txt and the title of the image to ~/.wallpaper/title.txt, just for reference
-def save_info(url, titles, title_index):
-  title = titles[title_index].replace('\\"', '"')
+def save_info(url, title):
   with open(walldir + '/url.txt', 'w') as urlinfo:
     urlinfo.write(url)
   with open(walldir + '/title.txt', 'w') as titleinfo:
@@ -377,8 +403,17 @@ def save_info(url, titles, title_index):
 #removes the [tags] throughout the image
 def remove_tags(str):
   tag = False
-  title = ''
+  str1 = ''
   for i in str:
+    if i == '[':
+      tag = True
+    if not tag:
+      str1 = str1 + i
+    if i == ']':
+      tag = False
+  tag = False
+  title = ''
+  for i in str1:
     if i == '[':
       tag = True
     if not tag:
