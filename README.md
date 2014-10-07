@@ -6,7 +6,6 @@ This is my first foray into Python, as Java is the only language I "know."  I al
 #Dependencies
 - imagemagick package (just convert and identify programs)
 - curl
-- ping
 
 #Usage
 The script is very simple to use.  If you have not copied the script to a folder such as /usr/bin or /usr/local/bin, make sure to cd into the directory of the script.  Then, type:
@@ -33,7 +32,7 @@ Now, the script will throw errors until you properly configure it.  The config f
 --random: will pick a random subreddit from the list instead of creating a multireddit.  The default can be set in the config file.
 
 #Startup
-If wallpaper-reddit is run with the --startup flag, the program will wait on an internet connection.  Options for the startup can only be set in the config file.  They are under the [Startup] section: interval and attempts.  The script will try to make a connection to reddit.com $attempts times at every $interval seconds.  For example, the default setting is an interval of 3 and 10 attempts, so the script will try to connect to reddit every 3 seconds for up to 10 tries, giving a total of 30 seconds before the scrpit gives up.  As a reminder, this feature is only activated by the --startup flag
+If wallpaper-reddit is run with the --startup flag, the program will wait on an internet connection.  Options for the startup can only be set in the config file.  They are under the [Startup] section: interval and attempts.  The script will try to make a connection to reddit.com $attempts times at every $interval seconds.  For example, the default setting is an interval of 3 and 10 attempts, so the script will try to connect to reddit every 3 seconds for up to 10 tries, giving a total of 30 seconds before the scrpit gives up.  As of v1.2, it should also catch if it is being redirected by the router (IE hotel/airport WiFi) As a reminder, this feature is only activated by the --startup flag
 
 #Saving
 If wallpaper-reddit is run with the --save flag, no wallpaper will be downloaded.  The current wallpaper will be copied to the save directory, as specified in the config file (default is ~/Pictures/Wallpapers), and its title will be put into a titles.txt file inside the same directory.
