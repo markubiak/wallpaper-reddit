@@ -402,6 +402,7 @@ def save_info(url, title):
 #out - string - title without any annoying tags
 #removes the [tags] throughout the image
 def remove_tags(str):
+  #removes brackets and contents of brackets
   tag = False
   str1 = ''
   for i in str:
@@ -411,16 +412,23 @@ def remove_tags(str):
       str1 = str1 + i
     if i == ']':
       tag = False
+  #removes parentheses and contents of parentheses
   tag = False
-  title = ''
+  str2 = ''
   for i in str1:
     if i == '[':
       tag = True
     if not tag:
-      title = title + i
+      str2 = str2 + i
     if i == ']':
       tag = False
-  return title.strip()
+  #removes any double spaces (from previous removals) and any spaces at the beginning and end
+  title = ''
+  for i in (range(len(str2)-1)):
+    if not(str2[i] == ' ' and str2[i+1] == ' '):
+      title = title + str2[i]
+  title = title.strip()
+  return title
 
 #saves the wallpaper in the save directory from the config
 #naming scheme is wallpaperN
