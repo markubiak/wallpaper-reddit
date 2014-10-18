@@ -416,11 +416,11 @@ def remove_tags(str):
   tag = False
   str2 = ''
   for i in str1:
-    if i == '[':
+    if i == '(':
       tag = True
     if not tag:
       str2 = str2 + i
-    if i == ']':
+    if i == ')':
       tag = False
   #removes any double spaces (from previous removals) and any spaces at the beginning and end
   title = ''
