@@ -148,7 +148,7 @@ def check_not_redirected():
     #Not reloading /etc/resolv.conf, since it will have to be reloaded for the function right before this is called
     uaurl = urllib.request.Request('http://www.reddit.com/.json', headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
     url = urllib.request.urlopen(uaurl,timeout=3)
-    json.loads(url.read().decode("utf8"))
+    json.loads(url.read().decode('utf8'))
     url.close()
     return True
   except (HTTPError, URLError, timeout, AttributeError, ValueError):
@@ -288,7 +288,7 @@ def get_links(subreddits):
   response = urllib.request.urlopen(uaurl)
   content = response.read()
   try:
-    data = json.loads(content.decode("utf8"))
+    data = json.loads(content.decode('iso8859-1'))
   except (AttributeError, ValueError):
     print('Was redirected from valid Reddit formatting.  Likely a router redirect, such as a hotel or airport.  Exiting...')
     sys.exit(0)
@@ -423,11 +423,7 @@ def remove_tags(str):
     if i == ')':
       tag = False
   #removes any double spaces (from previous removals) and any spaces at the beginning and end
-  title = ''
-  for i in (range(len(str2)-1)):
-    if not(str2[i] == ' ' and str2[i+1] == ' '):
-      title = title + str2[i]
-  title = title.strip()
+  title = str2.replace('  ', ' ').strip()
   return title
 
 #saves the wallpaper in the save directory from the config
