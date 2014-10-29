@@ -423,7 +423,12 @@ def remove_tags(str):
     if i == ')':
       tag = False
   #removes any double spaces (from previous removals) and any spaces at the beginning and end
-  title = str2.replace('  ', ' ').strip()
+  title = ''
+  for i in range(len(str2) - 1):
+    if not(str2[i] == ' ' and str2[i+1] == ' '):
+      title = title + str2[i]
+  title = title + str2[len(str2) - 1]
+  title = title.strip()
   return title
 
 #saves the wallpaper in the save directory from the config
