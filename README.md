@@ -46,3 +46,20 @@ Because more information is always better, much more than the wallpaper exists i
 - url.txt is the url of the current wallpaper
 - title.txt is the title of the current wallpaper (useful if you want to put the title into conky!)
 - external.sh is a bash script that is run at the end of every execution of the script.  Any extra commands to deal with the wallpaper can be safely places in this bash script.  I personally have mine darken my xfce4-panel if the wallpaper is too bright at the top, and set the wallpaper as my SLiM/xscreensaver background.
+
+#Hacks for window managers that refuse to change wallpaper
+Some WMs (like Pantheon) will not detect when a wallpaper updates.  Some, like XFCE, only need to have the wallpaper set to something else, then reset (thus why there is an example for it in there that does so).  However, some WMs will cache the wallpaper, which makes downloading a new one pointless, as the old one will simply be used.  To get around this, one can utilize the handy external.sh script. ( ~/.wallpaper/external.sh)
+
+
+  RAND=$RANDOM  #Creates a random int
+  
+  cd /home/user/.wallpaper  #Navigate to the proper directory
+  
+  rm `ls | grep wallpaper[0-9]`  #Removes any old copied wallpaper files (to reduce clutter)
+  
+  cp wallpaper wallpaper$RAND  #Copies the wallpaper to the new file
+  
+  gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper$RAND  #Sets the wallpaper to the new, uncached file
+  
+  
+What this block of code does is generate a random int (0-32767) and copy the wallpaper to wallpaper(random int).  This creates a new file that the WM has not cached before, forcing it to reload the wallpaper.  Only a 1 in 2^16 chance of failure, good enough for me.  The second line also makes sure any previous wallpapers get cleaned up
