@@ -285,7 +285,7 @@ def get_links(subreddits):
       parsedsubs = parsedsubs + '+' + sub
   url = "http://www.reddit.com/r/" + parsedsubs + ".json?limit=" + str(maxlinks)
   log("Grabbing json file " + url)
-  uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7' })
+  uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script, github.com/markubiak/wallpaper-reddit' })
   response = urllib.request.urlopen(uaurl)
   content = response.read()
   try:
