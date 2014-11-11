@@ -11,6 +11,7 @@ import ctypes
 import json
 import os
 import random
+import re
 import shutil
 import sys
 import time
@@ -288,7 +289,7 @@ def get_links(subreddits):
   response = urllib.request.urlopen(uaurl)
   content = response.read()
   try:
-    data = json.loads(content.decode('iso8859-1'))
+    data = json.loads(content.decode('utf-8'))
   except (AttributeError, ValueError):
     print('Was redirected from valid Reddit formatting.  Likely a router redirect, such as a hotel or airport.  Exiting...')
     sys.exit(0)
@@ -393,6 +394,10 @@ def blacklist_current():
 #in - string, string, - a url and a title
 #saves the url of the image to ~/.wallpaper/url.txt and the title of the image to ~/.wallpaper/title.txt, just for reference
 def save_info(url, title):
+  #Reddit escapes the unicode in json, so when the json is downloaded, the info has to be manually re-encoded
+  #and have the unicode characters reprocessed
+  title = title.encode('utf-8').decode('unicode-escape')
+  print(title)
   with open(walldir + '/url.txt', 'w') as urlinfo:
     urlinfo.write(url)
   with open(walldir + '/title.txt', 'w') as titleinfo:
@@ -402,34 +407,7 @@ def save_info(url, title):
 #out - string - title without any annoying tags
 #removes the [tags] throughout the image
 def remove_tags(str):
-  #removes brackets and contents of brackets
-  tag = False
-  str1 = ''
-  for i in str:
-    if i == '[':
-      tag = True
-    if not tag:
-      str1 = str1 + i
-    if i == ']':
-      tag = False
-  #removes parentheses and contents of parentheses
-  tag = False
-  str2 = ''
-  for i in str1:
-    if i == '(':
-      tag = True
-    if not tag:
-      str2 = str2 + i
-    if i == ')':
-      tag = False
-  #removes any double spaces (from previous removals) and any spaces at the beginning and end
-  title = ''
-  for i in range(len(str2) - 1):
-    if not(str2[i] == ' ' and str2[i+1] == ' '):
-      title = title + str2[i]
-  title = title + str2[len(str2) - 1]
-  title = title.strip()
-  return title
+  return re.sub(' +', ' ', re.sub("[\[\(\<].*?[\]\)\>]", "", str)).strip()
 
 #saves the wallpaper in the save directory from the config
 #naming scheme is wallpaperN
