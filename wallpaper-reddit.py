@@ -16,6 +16,7 @@ import shutil
 import sys
 import time
 import urllib.request
+from distutils import spawn
 from socket import timeout
 from urllib.error import HTTPError,URLError
 
@@ -41,6 +42,7 @@ savedir = ''
     
 def main():
   try:
+    check_requirements()
     #create directories and files that don't exist
     make_dirs()
     #read arguments and configs
@@ -101,6 +103,14 @@ def main():
 def log(info):
   if verbose:
     print(info)
+
+#checks that all required commands can be found
+def check_requirements():
+  for cmd in (('curl', 'curl'),('identify','imagemagick')):
+    if not spawn.find_executable(cmd[0]):
+      print("Missing required program '%s'." %cmd[1])
+      print("Please install from the package package manager and try again")
+      sys.exit(1)
 
 #creates directories and files if they do not exist
 def make_dirs():
