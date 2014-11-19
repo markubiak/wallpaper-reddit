@@ -299,7 +299,7 @@ def get_links(subreddits):
   titles = []
   for ln in dump.split('\n'):
     if ln[0:6] == '"url":':
-      links.append(ln[8:len(ln) - 2])
+      links.append(ln[8:-3])
     if ln[0:8] == '"title":':
       titles.append(ln[10:len(ln) - 2])
   return links, titles
