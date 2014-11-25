@@ -10,6 +10,7 @@ import configparser
 import ctypes
 import json
 import os
+import subprocess
 import random
 import re
 import shutil
@@ -390,11 +391,13 @@ def resize_image(path):
 
 def set_image_title(path, title):
   log("setting title")
-  command = (
-    "convert {path} -fill 'white' -undercolor '#00000080' "
-    "-gravity south -pointsize {titlesize} -annotate +0+5 '{title}' {path}"
-  ).format(path=path, title=remove_tags(title), titlesize=titlesize)
-  os.system(command)
+  # command = (
+  #   "convert {path} -fill 'white' -undercolor '#00000080' "
+  #   "-gravity south -pointsize {titlesize} -annotate +0+5 '{title}' {path}"
+  # ).format(path=path, title=remove_tags(title), titlesize=titlesize)
+  subprocess.call(["convert", path, "-fill", "white", "-undercolor",
+                   "#00000080", "-gravity", "south", "-pointsize",
+                   str(titlesize), "-annotate", "+0+5", title, path])
 
 #in - string - a url to match against the blacklist
 #out - boolean - whether the url is blacklisted
