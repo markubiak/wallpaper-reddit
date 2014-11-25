@@ -397,7 +397,8 @@ def set_image_title(path, title):
   # ).format(path=path, title=remove_tags(title), titlesize=titlesize)
   subprocess.call(["convert", path, "-fill", "white", "-undercolor",
                    "#00000080", "-gravity", "south", "-pointsize",
-                   str(titlesize), "-annotate", "+0+5", title, path])
+                   str(titlesize), "-annotate", "+0+5", remove_tags(title),
+                   path])
 
 #in - string - a url to match against the blacklist
 #out - boolean - whether the url is blacklisted
