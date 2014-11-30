@@ -5,7 +5,6 @@ This is my first foray into Python, as Java is the only language I "know."  I al
 
 #Dependencies
 - imagemagick package (just convert and identify programs)
-- curl
 
 #Usage
 The script is very simple to use.  If you have not copied the script to a folder such as /usr/bin or /usr/local/bin, make sure to cd into the directory of the script.  Then, type:

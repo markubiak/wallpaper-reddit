@@ -2,7 +2,6 @@
 
 #Dependencies:
 #- imagemagick (only 'convert' and 'identify')
-#- curl
 
 #import libs
 import argparse
@@ -326,14 +325,19 @@ def choose_valid(links):
     index = index + 1
   print("No valid links found.  Exiting")
   sys.exit(1)
-      
+
 #in - string - link to check dimensions of
 #out - boolean - if the link fits the proper dimensions
 #takes a link and checks to see if the link will match the minimum dimensions
 def check_dimensions(url):
-  #this is a very odd function, and super hack-y.  Python's urllib libraries would not partially download images.
-  #in addition, python3 has no built-in libs to check images, and I didn't feel like making this a huge program, so I used imagemagicks's identify command
-  os.system("curl --post301 --location -so " + tmpdir + "/header -r0-10000 " + url) #downloads only the first 10k of the image (for the headers)
+  # python3 has no built-in libs to check images, and I didn't feel like making this a huge program, so I used imagemagicks's identify command
+  resp = urllib.request.urlopen(urllib.request.Request(url, headers={
+      'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7',
+      'Range': 'bytes=0-10000'
+  }))
+  with open(tmpdir + "/header", "wb") as out:
+      out.write(resp.read())
+
   os.system("identify /tmp/wallpaper-reddit/header >" + tmpdir + "/headernew 2>/dev/null") #the ending saves the dimensions in /tmp, but ignores errors
   with open(tmpdir + "/headernew", 'r') as headfile:
     info = headfile.read()
