@@ -3,7 +3,7 @@ wallpaper-reddit is a Python 3.4.2 script that simply sets your wallpaper to the
 
 This is my first foray into Python, as Java is the only language I "know."  I always thought it would be cool to have some of the images from /r/earthporn and /r/spaceporn as wallpapers, and now I've automated it.
 
-Special thanks to users edigiacomo and orzarchi who helped add title overlays and dependency checks, respectively.
+Special thanks to users edigiacomo, who added title overlays and removed the dependency on curl, and orzarchi who added dependency checks.
 
 #Dependencies
 - imagemagick package (just convert and identify programs)
