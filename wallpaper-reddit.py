@@ -31,6 +31,7 @@ minwidth = 0
 minheight = 0
 titlesize = 0
 titlegravity = "south"
+titlefont = ""
 maxlinks = 0
 resize = False
 settitle = False
@@ -71,7 +72,7 @@ def main():
       print("ERROR: You do not appear to be connected to Reddit. Exiting")
       sys.exit(1)
     #download the image
-    links = get_links(subs)
+    links = get_links()
     imgurls = links[0]
     titles = links[1]
     valid = choose_valid(links[0])
@@ -204,14 +205,14 @@ def make_config():
                         'minwidth': '1024',
                         'minheight': '768',
                         'setttitle': 'False',
-                        'titlesize': '20',
-                        'titlegravity': 'south',
                         'maxlinks': '15',
                         'resize': 'False',
-                        'settitle': 'False',
                         'cleanup': 'True',
-                        'random': 'False'                       
-                        }
+                        'random': 'False' }
+  config['Title Overlay'] = { 'settitle': 'False',
+                              'titlesize': '20',
+                              'titlegravity': 'south',
+                              'titlefont': ''}
   config['Startup'] = { 'attempts': '10',
                         'interval': '3' }
   config['Save'] = { 'directory': '~/Pictures/Wallpapers' }
@@ -229,6 +230,7 @@ def parse_config():
   global settitle
   global titlesize
   global titlegravity
+  global titlefont
   global resize
   global cleanup
   global setcmd
@@ -241,13 +243,14 @@ def parse_config():
   maxlinks = config.getint('Options', 'maxlinks', fallback=15)
   minwidth = config.getint('Options', 'minwidth', fallback=1024)
   minheight = config.getint('Options', 'minheight', fallback=768)
-  titlesize = config.getint('Options', 'titlesize', fallback=20)
   resize = config.getboolean('Options', 'resize', fallback=False)
-  settitle = config.getboolean('Options', 'settitle', fallback=False)
   cleanup = config.getboolean('Options', 'cleanup', fallback=True)
   randomsub = config.getboolean('Options', 'random', fallback=False)
   setcmd = config.get('SetCommand', 'setcommand', fallback='')
-  titlegravity = config.get('Options', 'titlegravity', fallback='south')
+  settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
+  titlesize = config.getint('Title Overlay', 'titlesize', fallback=20)
+  titlegravity = config.get('Title Overlay', 'titlegravity', fallback='south')
+  titlefont = config.get('Title Overlay', 'titlefont', fallback='')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
   savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers').replace('~', os.getenv("HOME"))
@@ -257,18 +260,19 @@ def parse_args():
   parser = argparse.ArgumentParser(description="Pulls wallpapers from specified subreddits in reddit.com")
   parser.add_argument("subreddits", help="subreddits to check for wallpapers", nargs="*")
   parser.add_argument("-v", "--verbose", help="increases program verbosity", action="store_true")
-  parser.add_argument("--maxlinks", type=int, help="maximum amount of links to check before giving up")
   parser.add_argument("--height", type=int, help='minimum height of the image in pixels')
   parser.add_argument("--width", type=int, help='minimum width of the image in pixels')
-  parser.add_argument("--titlesize", type=int, help='font size of title in pixels')
-  parser.add_argument("--titlegravity", help='corner of title, follows imagemagick compass directions (south, north, northeast, etc.)')
+  parser.add_argument("--maxlinks", type=int, help="maximum amount of links to check before giving up")
   parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection", action="store_true")
   parser.add_argument("--save", help='saves the current wallpaper (requires a subreddit, but does not use it or download wallpaper)', action="store_true")
   parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set", action="store_true")
-  parser.add_argument("--settitle", help="write title over the image", action="store_true")
-  parser.add_argument("--nocleanup", help="does not remove the original downloaded image from the /tmp directory after wallpaper is set", action="store_false")
   parser.add_argument("--blacklist", help="blacklists the current wallpaper and redownloads a new wallpaper", action="store_true")
   parser.add_argument("--random", help="will pick a random subreddit from the ones provided instead of turning them into a multireddit", action="store_true")
+  parser.add_argument("--settitle", help="write title over the image", action="store_true")
+  parser.add_argument("--titlesize", type=int, help='font size of title in pixels')
+  parser.add_argument("--titlegravity", help='corner of title, follows imagemagick compass directions (south, north, northeast, etc.)')
+  parser.add_argument("--titlefont", help="font of the title overlay, use 'convert -list font' to get the list of valid fonts")
+  parser.add_argument("--nocleanup", help="does not remove the original downloaded image from the /tmp directory after wallpaper is set", action="store_false")
   args = parser.parse_args()
   global subs
   global verbose
@@ -279,6 +283,7 @@ def parse_args():
   global minwidth
   global titlesize
   global titlegravity
+  global titlefont
   global resize
   global settitle
   global cleanup
@@ -299,6 +304,8 @@ def parse_args():
     titlesize = args.titlesize
   if args.titlegravity:
     titlegravity = args.titlegravity
+  if args.titlefont:
+    titlefont = args.titlefont
   if args.resize:
     resize = True
   if args.settitle:
@@ -314,11 +321,11 @@ def parse_args():
 #in - string[] - list of subreddits to get links from
 #out - string[], string[] - a list of links from the subreddits and their respective titles
 #takes in subreddits, converts them to a reddit json url, and then picks out urls and their titles
-def get_links(subreddits):
+def get_links():
   if randomsub:
     parsedsubs = pick_random(subreddits)
   else:
-    parsedsubs = subreddits[0]
+    parsedsubs = subs[0]
     for sub in subs[1:]:
       parsedsubs = parsedsubs + '+' + sub
   url = "http://www.reddit.com/r/" + parsedsubs + ".json?limit=" + str(maxlinks)
@@ -414,10 +421,15 @@ def resize_image(path):
 #in - string, string - path of the image to set title on, title for image
 def set_image_title(path, title):
   log("setting title")
-  subprocess.call(["convert", path, "-fill", "white", "-undercolor",
-                   "#00000080", "-gravity", titlegravity, "-pointsize",
-                   str(titlesize), "-annotate", "+0+5", remove_tags(title),
-                   path])
+  newtitle = remove_tags(title)
+  if titlefont == "":
+    subprocess.call(["convert", path, "-gravity", titlegravity, "-pointsize", str(titlesize),
+                     "-fill", "#00000080", "-annotate", "+7+7", newtitle,
+                     "-fill", "white", "-annotate", "+5+5", newtitle, path])
+  else:
+    subprocess.call(["convert", path, "-gravity", titlegravity, "-pointsize", str(titlesize), "-font", titlefont,
+                     "-fill", "#00000080", "-annotate", "+7+7", newtitle,
+                     "-fill", "white", "-annotate", "+5+5", newtitle, path])
 
 #in - string - a url to match against the blacklist
 #out - boolean - whether the url is blacklisted
