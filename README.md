@@ -1,13 +1,18 @@
 #About
-wallpaper-reddit is a Python 3.4.1 script that simply sets your wallpaper to the top image from (a) subreddit(s) on reddit.com.
+wallpaper-reddit is a Python 3.4.2 script that simply sets your wallpaper to the top image from (a) subreddit(s) on reddit.com.
 
 This is my first foray into Python, as Java is the only language I "know."  I always thought it would be cool to have some of the images from /r/earthporn and /r/spaceporn as wallpapers, and now I've automated it.
+
+Special thanks to users edigiacomo and orzarchi who helped add title overlays and dependency checks, respectively.
 
 #Dependencies
 - imagemagick package (just convert and identify programs)
 
+#Installation
+Everything's pretty straightforward.  You can run the script just as any other python script in any folder, but to use it easily on terminal, move the script to /usr/local/bin/wallpaper-reddit.
+
 #Usage
-The script is very simple to use.  If you have not copied the script to a folder such as /usr/bin or /usr/local/bin, make sure to cd into the directory of the script.  Then, type:
+The script is very simple to use.  Simply type:
 
   wallpaper-reddit [subreddits]
   
@@ -32,6 +37,9 @@ Now, the script will throw errors until you properly configure it.  The config f
 
 #Startup
 If wallpaper-reddit is run with the --startup flag, the program will wait on an internet connection.  Options for the startup can only be set in the config file.  They are under the [Startup] section: interval and attempts.  The script will try to make a connection to reddit.com $attempts times at every $interval seconds.  For example, the default setting is an interval of 3 and 10 attempts, so the script will try to connect to reddit every 3 seconds for up to 10 tries, giving a total of 30 seconds before the scrpit gives up.  As of v1.2, it should also catch if it is being redirected by the router (IE hotel/airport WiFi) As a reminder, this feature is only activated by the --startup flag
+
+#Overlay Titles
+Thanks to user edigiacomo, the script now has an option to overlay the title of the image directly onto the image itself, so using conky to constantly read the title of the image from ~/.wallpaper/title.txt is no longer nexessary.  By default, this is not enabled, but it can easily be enabled with the "settitle" option in the config or the command line --settitle flag.  The size of the title text can be changed with the --titlesize TITLESIZE option, and the relative location of the title can be set with the --titlegravity TITLEGRAVITY option.  This uses ImageMagick's gravity option, documentation can be seen at http://www.imagemagick.org/script/command-line-options.php#gravity
 
 #Saving
 If wallpaper-reddit is run with the --save flag, no wallpaper will be downloaded.  The current wallpaper will be copied to the save directory, as specified in the config file (default is ~/Pictures/Wallpapers), and its title will be put into a titles.txt file inside the same directory.
