@@ -111,7 +111,7 @@ def log(info):
 
 #checks that all required commands can be found
 def check_requirements():
-  for cmd in (('curl', 'curl'),('identify','imagemagick')):
+  for cmd in (('convert','imagemagick'),('identify','imagemagick')):
     if not spawn.find_executable(cmd[0]):
       print("Missing required program '%s'." %cmd[1])
       print("Please install from the package package manager and try again")
@@ -337,9 +337,9 @@ def get_links(subreddits):
   titles = []
   for ln in dump.split('\n'):
     if ln[0:6] == '"url":':
-      links.append(ln[8:-3])
+      links.append(ln[8:-2])
     if ln[0:8] == '"title":':
-      titles.append(ln[10:len(ln) - 2])
+      titles.append(ln[10:-2])
   return links, titles
 
 #in - string[] - list of links to check
