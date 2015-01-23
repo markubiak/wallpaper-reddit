@@ -9,6 +9,7 @@ import configparser
 import ctypes
 import json
 import os
+import subprocess
 import random
 import re
 import shutil
@@ -27,8 +28,10 @@ save = False
 subs = []
 minwidth = 0
 minheight = 0
+titlesize = 0
 maxlinks = 0
 resize = False
+settitle = False
 cleanup = False
 randomsub = False
 blacklistcurrent = False
@@ -37,7 +40,7 @@ walldir = os.getenv("HOME") + '/.wallpaper'
 confdir = os.getenv("HOME") + '/.config/wallpaper-reddit'
 tmpdir = '/tmp/wallpaper-reddit'
 savedir = ''
-    
+
 def main():
   try:
     #create directories and files that don't exist
@@ -76,6 +79,8 @@ def main():
     #resize image if need be
     if resize:
       resize_image(tmpdir + '/download')
+    if settitle:
+        set_image_title(tmpdir + '/download', title)
     #move and set the wallpaper
     shutil.copyfile(tmpdir + '/download', walldir + '/wallpaper')
     #save link of original image for reference and set the wallpaper
@@ -187,8 +192,10 @@ def make_config():
   config['Options'] = { 'subs': 'earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes',
                         'minwidth': '1024',
                         'minheight': '768',
+                        'titlesize': '20',
                         'maxlinks': '15',
                         'resize': 'False',
+                        'settitle': 'False',
                         'cleanup': 'True',
                         'random': 'False' }
   config['Startup'] = { 'attempts': '10',
@@ -205,7 +212,9 @@ def parse_config():
   global maxlinks
   global minheight
   global minwidth
+  global titlesize
   global resize
+  global settitle
   global cleanup
   global setcmd
   global startupinterval
@@ -217,15 +226,17 @@ def parse_config():
   maxlinks = config.getint('Options', 'maxlinks', fallback=15)
   minwidth = config.getint('Options', 'minwidth', fallback=1024)
   minheight = config.getint('Options', 'minheight', fallback=768)
+  titlesize = config.getint('Options', 'titlesize', fallback=20)
   resize = config.getboolean('Options', 'resize', fallback=False)
+  settitle = config.getboolean('Options', 'settitle', fallback=False)
   cleanup = config.getboolean('Options', 'cleanup', fallback=True)
   randomsub = config.getboolean('Options', 'random', fallback=False)
   setcmd = config.get('SetCommand', 'setcommand', fallback='')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
   savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers').replace('~', os.getenv("HOME"))
-  
-#parses command-line arguments and stores them to proper global variables  
+
+#parses command-line arguments and stores them to proper global variables
 def parse_args():
   parser = argparse.ArgumentParser(description="Pulls wallpapers from specified subreddits in reddit.com")
   parser.add_argument("subreddits", help="subreddits to check for wallpapers", nargs="*")
@@ -233,9 +244,11 @@ def parse_args():
   parser.add_argument("--maxlinks", type=int, help="maximum amount of links to check before giving up")
   parser.add_argument("--height", type=int, help='minimum height of the image in pixels')
   parser.add_argument("--width", type=int, help='minimum width of the image in pixels')
+  parser.add_argument("--titlesize", type=int, help='title size in pizels')
   parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection", action="store_true")
   parser.add_argument("--save", help='saves the current wallpaper (requires a subreddit, but does not use it or download wallpaper)', action="store_true")
   parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set", action="store_true")
+  parser.add_argument("--settitle", help="write title over the image", action="store_true")
   parser.add_argument("--nocleanup", help="does not remove the original downloaded image from the /tmp directory after wallpaper is set", action="store_false")
   parser.add_argument("--blacklist", help="blacklists the current wallpaper and redownloads a new wallpaper", action="store_true")
   parser.add_argument("--random", help="will pick a random subreddit from the ones provided instead of turning them into a multireddit", action="store_true")
@@ -247,7 +260,9 @@ def parse_args():
   global maxlinks
   global minheight
   global minwidth
+  global titlesize
   global resize
+  global settitle
   global cleanup
   global randomsub
   global blacklistcurrent
@@ -262,8 +277,12 @@ def parse_args():
     minheight = args.height
   if args.width:
     minwidth = args.width
+  if args.titlesize:
+      titlesize = args.titlesize
   if args.resize:
     resize = True
+  if args.settitle:
+     settitle = True
   if not args.nocleanup:
     cleanup = False
   if args.random:
@@ -357,7 +376,7 @@ def download_image(url):
   with open(tmpdir + "/download", "wb") as local_file:
     local_file.write(f.read())
   f.close()
-  
+
 #in - string - command to set the wallpaper from ~/.wallpaper/wallpaper
 #uses the user-specified command to set the downloaded-then-moved wallpaper
 def set_wallpaper(wpsetcommand):
@@ -371,6 +390,17 @@ def resize_image(path):
   #uses the imagemagick 'convert' command to resize the image
   command = 'convert ' + path + ' -resize ' + str(minwidth) + 'x' + str(minheight) + '^ -gravity center -extent ' + str(minwidth) + 'x' + str(minheight) + ' ' + path
   os.system(command)
+
+def set_image_title(path, title):
+  log("setting title")
+  # command = (
+  #   "convert {path} -fill 'white' -undercolor '#00000080' "
+  #   "-gravity south -pointsize {titlesize} -annotate +0+5 '{title}' {path}"
+  # ).format(path=path, title=remove_tags(title), titlesize=titlesize)
+  subprocess.call(["convert", path, "-fill", "white", "-undercolor",
+                   "#00000080", "-gravity", "south", "-pointsize",
+                   str(titlesize), "-annotate", "+0+5", remove_tags(title),
+                   path])
 
 #in - string - a url to match against the blacklist
 #out - boolean - whether the url is blacklisted
@@ -430,7 +460,7 @@ def external_script():
       external.write('#! /bin/bash\n\n#You can enter custom commands here that will execute after the main program is finished')
     os.system('chmod +x ' + walldir + '/external.sh')
   os.system('bash ' + walldir + '/external.sh')
-  
+
 #in: a list of subreddits
 #out: the name of a random subreddit
 #will pick a random sub from a list of subreddits
