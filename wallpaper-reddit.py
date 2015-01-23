@@ -401,12 +401,9 @@ def resize_image(path):
   command = 'convert ' + path + ' -resize ' + str(minwidth) + 'x' + str(minheight) + '^ -gravity center -extent ' + str(minwidth) + 'x' + str(minheight) + ' ' + path
   os.system(command)
 
+#in - string, string - path of the image to set title on, title for image
 def set_image_title(path, title):
   log("setting title")
-  # command = (
-  #   "convert {path} -fill 'white' -undercolor '#00000080' "
-  #   "-gravity south -pointsize {titlesize} -annotate +0+5 '{title}' {path}"
-  # ).format(path=path, title=remove_tags(title), titlesize=titlesize)
   subprocess.call(["convert", path, "-fill", "white", "-undercolor",
                    "#00000080", "-gravity", titlegravity, "-pointsize",
                    str(titlesize), "-annotate", "+0+5", remove_tags(title),
