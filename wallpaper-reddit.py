@@ -330,14 +330,12 @@ def choose_valid(links):
 #out - boolean - if the link fits the proper dimensions
 #takes a link and checks to see if the link will match the minimum dimensions
 def check_dimensions(url):
-  # python3 has no built-in libs to check images, and I didn't feel like making this a huge program, so I used imagemagicks's identify command
   resp = urllib.request.urlopen(urllib.request.Request(url, headers={
       'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7',
       'Range': 'bytes=0-10000'
   }))
   with open(tmpdir + "/header", "wb") as out:
       out.write(resp.read())
-
   os.system("identify /tmp/wallpaper-reddit/header >" + tmpdir + "/headernew 2>/dev/null") #the ending saves the dimensions in /tmp, but ignores errors
   with open(tmpdir + "/headernew", 'r') as headfile:
     info = headfile.read()
