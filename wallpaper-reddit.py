@@ -29,6 +29,7 @@ subs = []
 minwidth = 0
 minheight = 0
 titlesize = 0
+titlegravity = "south"
 maxlinks = 0
 resize = False
 settitle = False
@@ -192,12 +193,15 @@ def make_config():
   config['Options'] = { 'subs': 'earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes',
                         'minwidth': '1024',
                         'minheight': '768',
+                        'setttitle': 'False',
                         'titlesize': '20',
+                        'titlegravity': 'south',
                         'maxlinks': '15',
                         'resize': 'False',
                         'settitle': 'False',
                         'cleanup': 'True',
-                        'random': 'False' }
+                        'random': 'False'                       
+                        }
   config['Startup'] = { 'attempts': '10',
                         'interval': '3' }
   config['Save'] = { 'directory': '~/Pictures/Wallpapers' }
@@ -212,9 +216,10 @@ def parse_config():
   global maxlinks
   global minheight
   global minwidth
-  global titlesize
-  global resize
   global settitle
+  global titlesize
+  global titlegravity
+  global resize
   global cleanup
   global setcmd
   global startupinterval
@@ -232,6 +237,7 @@ def parse_config():
   cleanup = config.getboolean('Options', 'cleanup', fallback=True)
   randomsub = config.getboolean('Options', 'random', fallback=False)
   setcmd = config.get('SetCommand', 'setcommand', fallback='')
+  titlegravity = config.get('Options', 'titlegravity', fallback='south')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
   savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers').replace('~', os.getenv("HOME"))
@@ -244,7 +250,8 @@ def parse_args():
   parser.add_argument("--maxlinks", type=int, help="maximum amount of links to check before giving up")
   parser.add_argument("--height", type=int, help='minimum height of the image in pixels')
   parser.add_argument("--width", type=int, help='minimum width of the image in pixels')
-  parser.add_argument("--titlesize", type=int, help='title size in pizels')
+  parser.add_argument("--titlesize", type=int, help='font size of title in pixels')
+  parser.add_argument("--titlegravity", help='corner of title, follows imagemagick compass directions (south, north, northeast, etc.)')
   parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection", action="store_true")
   parser.add_argument("--save", help='saves the current wallpaper (requires a subreddit, but does not use it or download wallpaper)', action="store_true")
   parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set", action="store_true")
@@ -261,6 +268,7 @@ def parse_args():
   global minheight
   global minwidth
   global titlesize
+  global titlegravity
   global resize
   global settitle
   global cleanup
@@ -278,7 +286,9 @@ def parse_args():
   if args.width:
     minwidth = args.width
   if args.titlesize:
-      titlesize = args.titlesize
+    titlesize = args.titlesize
+  if args.titlegravity:
+    titlegravity = args.titlegravity
   if args.resize:
     resize = True
   if args.settitle:
@@ -398,7 +408,7 @@ def set_image_title(path, title):
   #   "-gravity south -pointsize {titlesize} -annotate +0+5 '{title}' {path}"
   # ).format(path=path, title=remove_tags(title), titlesize=titlesize)
   subprocess.call(["convert", path, "-fill", "white", "-undercolor",
-                   "#00000080", "-gravity", "south", "-pointsize",
+                   "#00000080", "-gravity", titlegravity, "-pointsize",
                    str(titlesize), "-annotate", "+0+5", remove_tags(title),
                    path])
 
