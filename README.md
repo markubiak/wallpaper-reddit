@@ -25,21 +25,21 @@ Now, the script will throw errors until you properly configure it.  The config f
 #Options
 -v or --verbose:  tells you what the program is doing (useful if you're on dialup or the script isn't getting wallpapers)
 
+--height and --width:  specifies the minimum dimensions (in pixels) for the wallpaper to be to be considered a valid wallpaper.  The defaults can be specified in the config file.
+
 --maxlinks:  specifies how many links to process from the specified subreddits.  More will take longer to get, but may help if the subreddit isn't image-centric.  The default can be specified in the config file.
 
---height and --width:  specifies the minimum dimensions (in pixels) for the wallpaper to be to be considered a valid wallpaper.  The defaults can be specified in the config file.
+--random: will pick a random subreddit from the list instead of creating a multireddit.  The default can be set in the config file.
 
 --resize:  will resize the image to the height and width as specified by the command-line options or the config file before it is moved from /tmp to your home directory.  Useful for space saving and desktops that won't auto resize.  The default can be set in the config file.
 
 --nocleanup:  will not remove the wallpaper-reddit folder from /tmp upon the script's completion.  The default can be set in the config file.
 
---random: will pick a random subreddit from the list instead of creating a multireddit.  The default can be set in the config file.
-
 #Startup
 If wallpaper-reddit is run with the --startup flag, the program will wait on an internet connection.  Options for the startup can only be set in the config file.  They are under the [Startup] section: interval and attempts.  The script will try to make a connection to reddit.com $attempts times at every $interval seconds.  For example, the default setting is an interval of 3 and 10 attempts, so the script will try to connect to reddit every 3 seconds for up to 10 tries, giving a total of 30 seconds before the scrpit gives up.  As of v1.2, it should also catch if it is being redirected by the router (IE hotel/airport WiFi) As a reminder, this feature is only activated by the --startup flag
 
 #Overlay Titles
-Thanks to user edigiacomo, the script now has an option to overlay the title of the image directly onto the image itself, so using conky to constantly read the title of the image from ~/.wallpaper/title.txt is no longer nexessary.  By default, this is not enabled, but it can easily be enabled with the "settitle" option in the config or the command line --settitle flag.  The size of the title text can be changed with the --titlesize TITLESIZE option, and the relative location of the title can be set with the --titlegravity TITLEGRAVITY option.  This uses ImageMagick's gravity option, documentation can be seen at http://www.imagemagick.org/script/command-line-options.php#gravity
+Thanks to user edigiacomo, the script now has an option to overlay the title of the image directly onto the image itself, so using conky to constantly read the title of the image from ~/.wallpaper/title.txt is no longer nexessary.  This function is not enabled by default, but it can be enabled with either the --settitle command line flag, or you can enable it in the config under the "Title Overlay" section.  There are three options for setting titles: size, location, and font.  The size (fontsize) is the height of the text in pixels.  The location (titlegravity) tells ImageMagick where to put the title in relation to the image.  Valid options are listed at http://www.imagemagick.org/script/command-line-options.php#gravity.  The font needs specific names, which can be listed with the command "convert -list font | grep Fonts:".  These options can all be set in the command line or in the config file.
 
 #Saving
 If wallpaper-reddit is run with the --save flag, no wallpaper will be downloaded.  The current wallpaper will be copied to the save directory, as specified in the config file (default is ~/Pictures/Wallpapers), and its title will be put into a titles.txt file inside the same directory.
