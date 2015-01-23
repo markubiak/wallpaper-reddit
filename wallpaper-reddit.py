@@ -332,21 +332,19 @@ def get_links():
   log("Grabbing json file " + url)
   uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script, github.com/markubiak/wallpaper-reddit' })
   response = urllib.request.urlopen(uaurl)
-  content = response.read()
+  content = response.read().decode('utf-8')
   try:
-    data = json.loads(content.decode('utf-8'))
+    data = json.loads(content)
   except (AttributeError, ValueError):
     print('Was redirected from valid Reddit formatting.  Likely a router redirect, such as a hotel or airport.  Exiting...')
     sys.exit(0)
-  dump = json.dumps(data, sort_keys=True, indent=0)
+    print(i["data"]["title"])
   response.close()
   links = []
   titles = []
-  for ln in dump.split('\n'):
-    if ln[0:6] == '"url":':
-      links.append(ln[8:-2])
-    if ln[0:8] == '"title":':
-      titles.append(ln[10:-2])
+  for i in data["data"]["children"]:
+    links.append(i["data"]["url"])
+    titles.append(i["data"]["title"])
   return links, titles
 
 #in - string[] - list of links to check
