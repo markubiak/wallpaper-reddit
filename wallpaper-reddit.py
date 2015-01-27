@@ -16,6 +16,7 @@ import shutil
 import sys
 import time
 import urllib.request
+from collections import OrderedDict
 from distutils import spawn
 from socket import timeout
 from urllib.error import HTTPError,URLError
@@ -195,27 +196,26 @@ def wait_for_connection(tries, interval):
 #creates a default config file with examples in ~/.config/wallpaper-reddit
 def make_config():
   config = configparser.ConfigParser()
-  config['SetCommand'] = { 'setcommand': '' }
-  config['SetCommandExamples'] = { 'examples': 'feel free to delete these, wallpaper will be ~/.wallpaper/wallpaper',
-                           'example_gnome3: gnome3 (Unity, Cinnamon, Gnome 3)': 'gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper',
-                           'example_gnome2: gnome2 (Metacity, MATE)': 'gconftool-2 -t string -s /desktop/gnome/background/picture_filename "/home/user/.wallpaper/wallpaper"',
-                           'example_xfce4': 'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" && xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "/home/user/.wallpaper/wallpaper"',
-                           'example_bash': 'bash /home/user/.config/wallpaper-reddit/some-script.sh' }
-  config['Options'] = { 'subs': 'earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes',
-                        'minwidth': '1024',
-                        'minheight': '768',
-                        'setttitle': 'False',
-                        'maxlinks': '15',
-                        'resize': 'False',
-                        'cleanup': 'True',
-                        'random': 'False' }
-  config['Title Overlay'] = { 'settitle': 'False',
-                              'titlesize': '20',
-                              'titlegravity': 'south',
-                              'titlefont': ''}
-  config['Startup'] = { 'attempts': '10',
-                        'interval': '3' }
-  config['Save'] = { 'directory': '~/Pictures/Wallpapers' }
+  config['SetCommand'] = OrderedDict([('setcommand', '')])
+  config['SetCommandExamples'] = OrderedDict([('examples', 'feel free to delete these, wallpaper will be ~/.wallpaper/wallpaper'),
+                           ('example_gnome3: gnome3 (Unity, Cinnamon, Gnome 3)', 'gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper'),
+                           ('example_gnome2: gnome2 (Metacity, MATE)', 'gconftool-2 -t string -s /desktop/gnome/background/picture_filename "/home/user/.wallpaper/wallpaper"'),
+                           ('example_xfce4', 'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" && xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "/home/user/.wallpaper/wallpaper"'),
+                           ('example_bash', 'bash /home/user/.config/wallpaper-reddit/some-script.sh')])
+  config['Options'] = OrderedDict([('subs', 'earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes'),
+                        ('minwidth', '1024'),
+                        ('minheight', '768'),
+                        ('maxlinks', '15'),
+                        ('resize', 'False'),
+                        ('cleanup', 'True'),
+                        ('random', 'False')])
+  config['Title Overlay'] = OrderedDict([('settitle', 'False'),
+                              ('titlesize', '20'),
+                              ('titlegravity', 'south'),
+                              ('titlefont', '')])
+  config['Startup'] = OrderedDict([('attempts', '10'),
+                        ('interval', '3')])
+  config['Save'] = OrderedDict([('directory', '~/Pictures/Wallpapers')])
   with open(confdir + '/wallpaper-reddit.conf', 'w') as configfile:
     config.write(configfile)
 
