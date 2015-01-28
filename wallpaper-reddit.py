@@ -24,6 +24,7 @@ from urllib.error import HTTPError,URLError
 #global vars
 verbose = False
 startup = False
+force_dl = False
 startupinterval = 0
 startupattempts = 0
 save = False
@@ -263,6 +264,7 @@ def parse_args():
   parser.add_argument("--height", type=int, help='minimum height of the image in pixels')
   parser.add_argument("--width", type=int, help='minimum width of the image in pixels')
   parser.add_argument("--maxlinks", type=int, help="maximum amount of links to check before giving up")
+  parser.add_argument("--force", help="forces wallpapers to re-download even if it has the same url as the current wallpaper", action="store_true")
   parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection", action="store_true")
   parser.add_argument("--save", help='saves the current wallpaper (requires a subreddit, but does not use it or download wallpaper)', action="store_true")
   parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set", action="store_true")
@@ -277,6 +279,7 @@ def parse_args():
   global subs
   global verbose
   global save
+  global force_dl
   global startup
   global maxlinks
   global minheight
@@ -294,6 +297,7 @@ def parse_args():
   verbose = args.verbose
   save = args.save
   startup = args.startup
+  force_dl = args.force
   if args.maxlinks:
     maxlinks = args.maxlinks
   if args.height:
@@ -364,13 +368,16 @@ def choose_valid(links):
       log(link + " appears to be an image")
       #if links is direct image, make sure the porgram can get the link, that it fits the minimum dimensions, and that it's not blacklisted
       if connected(link) and check_dimensions(link) and check_blacklist(link):
-        with open(walldir + '/url.txt', 'r') as f:
-          currlink = f.read()
-          if currlink == link:
-            print("current wallpaper is the most recent, will not re-download the same wallpaper.")
-            sys.exit(0)
-          else:
-            return link, index
+        if force_dl:
+          return link, index
+        else:
+          with open(walldir + '/url.txt', 'r') as f:
+            currlink = f.read()
+            if currlink == link:
+              print("current wallpaper is the most recent, will not re-download the same wallpaper.")
+              sys.exit(0)
+            else:
+              return link, index
     else:
       log(link + " was not a valid image")
     index = index + 1

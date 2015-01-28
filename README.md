@@ -27,6 +27,8 @@ Now, the script will throw errors until you properly configure it.  The config f
 
 --height and --width:  specifies the minimum dimensions (in pixels) for the wallpaper to be to be considered a valid wallpaper.  The defaults can be specified in the config file.
 
+--force: the program will, by default, check if the last downloaded wallpaper is the same as the one it is going to download, but the force command will override this check.
+
 --maxlinks:  specifies how many links to process from the specified subreddits.  More will take longer to get, but may help if the subreddit isn't image-centric.  The default can be specified in the config file.
 
 --random: will pick a random subreddit from the list instead of creating a multireddit.  The default can be set in the config file.
