@@ -322,6 +322,7 @@ def parse_args():
 #out - string[], string[] - a list of links from the subreddits and their respective titles
 #takes in subreddits, converts them to a reddit json url, and then picks out urls and their titles
 def get_links():
+  print("searching for valid images...")
   if randomsub:
     parsedsubs = pick_random(subreddits)
   else:
@@ -359,11 +360,17 @@ def choose_valid(links):
   for link in links:
     log("checking url " + link)
     #checks for direct image links
-    if link[len(link)-4:len(link)] == '.png' or link[len(link)-4:len(link)] == '.jpg' or link[len(link)-5:len(link)] == '.jpeg':
+    if link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg':
       log(link + " appears to be an image")
       #if links is direct image, make sure the porgram can get the link, that it fits the minimum dimensions, and that it's not blacklisted
       if connected(link) and check_dimensions(link) and check_blacklist(link):
-        return link, index
+        with open(walldir + '/url.txt', 'r') as f:
+          currlink = f.read()
+          if currlink == link:
+            print("current wallpaper is the most recent, will not re-download the same wallpaper.")
+            sys.exit(0)
+          else:
+            return link, index
     else:
       log(link + " was not a valid image")
     index = index + 1
@@ -397,7 +404,7 @@ def check_dimensions(url):
 def download_image(url):
   uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
   f = urllib.request.urlopen(uaurl)
-  log("downloading " + url)
+  print("downloading " + url)
   with open(tmpdir + "/download", "wb") as local_file:
     local_file.write(f.read())
   f.close()
@@ -406,7 +413,7 @@ def download_image(url):
 #uses the user-specified command to set the downloaded-then-moved wallpaper
 def set_wallpaper(wpsetcommand):
   os.system(wpsetcommand)
-  log(walldir + "/wallpaper was set as the wallpaper")
+  print("wallpaper was set")
 
 #in - string - path of the image to resize
 #resizes the image to the minimum width and height from the config/args
@@ -443,7 +450,7 @@ def check_blacklist(url):
 #blacklists the current wallpaper, as listed in the ~/.wallpaper/url.txt file
 def blacklist_current():
   if not os.path.isfile(walldir + '/url.txt'):
-    print('ERROR: ~/.wallpaper/url.txt does not exist.  wallpaper-reddit must run oncce before you can blacklist a wallpaper.')
+    print('ERROR: ~/.wallpaper/url.txt does not exist.  wallpaper-reddit must run once before you can blacklist a wallpaper.')
     sys.exit(1)
   with open(walldir + '/url.txt', 'r') as urlfile:
     url = urlfile.read()
@@ -478,7 +485,7 @@ def save_wallpaper():
     title = f.read()
   with open(savedir + '/titles.txt', 'a') as f:
     f.write('\n' + 'wallpaper' + str(i) + ': ' + title)
-  log("current wallpaper saved to " + savedir + '/wallpaper' + str(i))
+  print("current wallpaper saved to " + savedir + '/wallpaper' + str(i))
 
 #creates and runs the ~/.wallpaper/external.sh script
 def external_script():
