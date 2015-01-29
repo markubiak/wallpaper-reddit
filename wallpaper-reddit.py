@@ -114,7 +114,7 @@ def log(info):
 
 #checks that all required commands can be found
 def check_requirements():
-  for cmd in (('convert','imagemagick'),('identify','imagemagick')):
+  for cmd in (('convert','imagemagick'),('identify','imagemagick'),('file', 'file')):
     if not spawn.find_executable(cmd[0]):
       print("Missing required program '%s'." %cmd[1])
       print("Please install from the package package manager and try again")
@@ -390,19 +390,46 @@ def choose_valid(links):
 def check_dimensions(url):
   resp = urllib.request.urlopen(urllib.request.Request(url, headers={
       'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7',
-      'Range': 'bytes=0-10000'
+      'Range': 'bytes=0-1000'
   }))
   with open(tmpdir + "/header", "wb") as out:
       out.write(resp.read())
-  os.system("identify /tmp/wallpaper-reddit/header >" + tmpdir + "/headernew 2>/dev/null") #the ending saves the dimensions in /tmp, but ignores errors
+  os.system("identify -format %[fx:w]x%[fx:h] " + tmpdir + "/header > " + tmpdir + "/headernew 2>/dev/null") #the ending saves the dimensions in /tmp, but ignores errors
+  with open(tmpdir + "/headernew", 'r') as headfile:
+    info = headfile.read()
+  if info != '' and info != 'x':
+    dimensions = info.split('x') #picks out the dimensions
+    if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
+      log(url + " fits minimum dimensions by identify test")
+      return True
+    else:
+      log(url + " is too small by identify test")
+      return False
+  os.system("file " + tmpdir + "/header > " + tmpdir + "/headernew 2>/dev/null")
   with open(tmpdir + "/headernew", 'r') as headfile:
     info = headfile.read()
   if info != '':
-    dimensions = info.split(' ')[2].split('x') #picks out the dimensions
-    if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
-      log(url + " fits minimum dimensions")
-      return True
-  log(url + " is too small")
+    dimsearch = re.compile(r'[5-9]{1}[0-9]{2,}x[5-9]{1}[0-9]{2,}').search(info)
+    if dimsearch is not None:
+      dimensions = dimsearch.group().split('x')
+      if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
+        log(url + " fits minimum dimensions by regex test 1")
+        return True
+      else:
+        log(url + " is too small by regex test 1")
+        return False
+    heightsearch = re.compile(r'(height=[5-9]{1}[0-9]{2,})').search(info)
+    widthsearch = re.compile(r'(width=[5-9]{1}[0-9]{2,})').search(info)
+    if heightsearch is not None and widthsearch is not None:
+      height = heightsearch.group(1)[7:]
+      width = widthsearch.group(1)[6:]
+      if int(width) >= minwidth and int(height) >= minheight:
+        log(url + " fits minimum dimensions by regex test 2")
+        return True
+      else:
+        log(url + " is too small bby regex test 2")
+        return False
+  log("dimensions of image could not be read")
   return False
 
 #credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
