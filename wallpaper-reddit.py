@@ -9,15 +9,18 @@ import configparser
 import ctypes
 import json
 import os
+import platform
 import subprocess
 import random
 import re
 import shutil
 import sys
+import tempfile
 import time
 import urllib.request
 from collections import OrderedDict
 from distutils import spawn
+from random import randint
 from socket import timeout
 from urllib.error import HTTPError,URLError
 
@@ -37,19 +40,18 @@ titlefont = ""
 maxlinks = 0
 resize = False
 settitle = False
-cleanup = False
 randomsub = False
 blacklistcurrent = False
 setcmd = ''
-walldir = os.getenv("HOME") + '/.wallpaper'
-confdir = os.getenv("HOME") + '/.config/wallpaper-reddit'
-tmpdir = '/tmp/wallpaper-reddit'
+walldir = ''
+confdir = ''
 savedir = ''
+opsys = platform.system()
 
 def main():
   try:
     check_requirements()
-    #create directories and files that don't exist
+    #create directories and files that don't exist and init directories based on OS
     make_dirs()
     #read arguments and configs
     parse_config()
@@ -81,21 +83,24 @@ def main():
     valid_url = valid[0]
     title_index = valid[1]
     title = titles[title_index].replace('\\"', '"')
-    download_image(valid_url)
+    #prepare a temp file to downlad the wallpaper to
+    tempimage = tempfile.NamedTemporaryFile(delete=False)
+    tempimage.close()
+    download_image(valid_url, tempimage.name)
     #resize image if need be
     if resize:
-      resize_image(tmpdir + '/download')
+      resize_image(tempimage.name)
     if settitle:
-        set_image_title(tmpdir + '/download', title)
+      set_image_title(tempimage.name, title)
     #move and set the wallpaper
-    shutil.copyfile(tmpdir + '/download', walldir + '/wallpaper')
+    if opsys == "Windows":
+      shutil.copyfile(tempimage.name, walldir + '\\wallpaper.bmp')
+    else:
+      shutil.copyfile(tempimage.name, walldir + '/wallpaper.jpg')
+    os.unlink(tempimage.name)
     #save link of original image for reference and set the wallpaper
     save_info(valid_url, title)
     set_wallpaper(setcmd)
-    #cleanup
-    if cleanup:
-      shutil.rmtree(tmpdir)
-      log(tmpdir + " cleaned out")
     external_script()
   except KeyboardInterrupt:
     sys.exit(1)
@@ -114,7 +119,7 @@ def log(info):
 
 #checks that all required commands can be found
 def check_requirements():
-  for cmd in (('convert','imagemagick'),('identify','imagemagick'),('file', 'file')):
+  for cmd in (('convert','imagemagick'),('identify','imagemagick'),('mogrify','imagemagick'):
     if not spawn.find_executable(cmd[0]):
       print("Missing required program '%s'." %cmd[1])
       print("Please install from the package package manager and try again")
@@ -122,21 +127,30 @@ def check_requirements():
 
 #creates directories and files if they do not exist
 def make_dirs():
+  global walldir
+  global confdir
+  global tmpdir
+  if opsys == "Linux":
+    walldir = os.path.expanduser("~/.wallpaper")
+    confdir = os.path.expanduser("~/.config/wallpaper-reddit")
+  else:
+    walldir = os.path.expanduser("~/Wallpaper-Reddit")
+    confdir = os.path.expanduser("~/Wallpaper-Reddit/Config")
   if not os.path.exists(walldir):
     os.makedirs(walldir)
-    log("~/.wallpaper created")
+    log(walldir + " created")
   if not os.path.exists(walldir + '/blacklist.txt'):
     with open(walldir + '/blacklist.txt', 'w') as blacklist:
       blacklist.write('')
-  if not os.path.exists(tmpdir):
-    os.makedirs(tmpdir)
-    log("/tmp/wallpaper-reddit created")
+  if not os.path.exists(walldir + '/url.txt'):
+    with open(walldir + '/url.txt', 'w') as urlfile:
+      urlfile.write('')
   if not os.path.exists(confdir):
     os.makedirs(confdir)
-    log("~/.config/wallpaper-reddit created")
+    log(confdir + " created")
   if not os.path.isfile(confdir + '/wallpaper-reddit.conf'):
     make_config()
-    print("default config file created at ~/.config/wallpaper-reddit/wallpaper-reddit.conf. You need to do some minimal configuration before the program will work")
+    print("default config file created at " + confdir + "/wallpaper-reddit.conf. You need to do some minimal configuration before the program will work")
     sys.exit(0)
 
 #creates directories for the saved images, as that directory has to be loaded from the config file
@@ -153,7 +167,7 @@ def make_save_dirs():
 #checks whether the program can connect to the specified url
 def connected(url):
   try:
-    uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
+    uaurl = urllib.request.Request(url, headers={'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
     url = urllib.request.urlopen(uaurl,timeout=3)
     url.close()
     return True
@@ -208,7 +222,6 @@ def make_config():
                         ('minheight', '768'),
                         ('maxlinks', '15'),
                         ('resize', 'False'),
-                        ('cleanup', 'True'),
                         ('random', 'False')])
   config['Title Overlay'] = OrderedDict([('settitle', 'False'),
                               ('titlesize', '20'),
@@ -233,7 +246,6 @@ def parse_config():
   global titlegravity
   global titlefont
   global resize
-  global cleanup
   global setcmd
   global startupinterval
   global startupattempts
@@ -245,7 +257,6 @@ def parse_config():
   minwidth = config.getint('Options', 'minwidth', fallback=1024)
   minheight = config.getint('Options', 'minheight', fallback=768)
   resize = config.getboolean('Options', 'resize', fallback=False)
-  cleanup = config.getboolean('Options', 'cleanup', fallback=True)
   randomsub = config.getboolean('Options', 'random', fallback=False)
   setcmd = config.get('SetCommand', 'setcommand', fallback='')
   settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
@@ -254,7 +265,7 @@ def parse_config():
   titlefont = config.get('Title Overlay', 'titlefont', fallback='')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
-  savedir = config.get('Save', 'directory', fallback=os.getenv("HOME") + '/Pictures/Wallpapers').replace('~', os.getenv("HOME"))
+  savedir = os.path.expanduser(config.get('Save', 'directory', fallback=os.path.expanduser("~/Pictures/Wallpaper")))
 
 #parses command-line arguments and stores them to proper global variables
 def parse_args():
@@ -343,7 +354,6 @@ def get_links():
   except (AttributeError, ValueError):
     print('Was redirected from valid Reddit formatting.  Likely a router redirect, such as a hotel or airport.  Exiting...')
     sys.exit(0)
-    print(i["data"]["title"])
   response.close()
   links = []
   titles = []
@@ -392,31 +402,52 @@ def check_dimensions(url):
       'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7',
       'Range': 'bytes=0-1000'
   }))
-  with open(tmpdir + "/header", "wb") as out:
-      out.write(resp.read())
-  os.system("identify -format %[fx:w]x%[fx:h] " + tmpdir + "/header > " + tmpdir + "/headernew 2>/dev/null") #the ending saves the dimensions in /tmp, but ignores errors
-  with open(tmpdir + "/headernew", 'r') as headfile:
-    info = headfile.read()
+  header = tempfile.NamedTemporaryFile(delete=False)
+  header.write(resp.read())
+  header.close()
+  identifyinfo = tempfile.NamedTemporaryFile(delete=False)
+  identifyinfo.close()
+  if opsys == "Linux":
+    os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name + " 2> /dev/null")
+  else:
+    os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name + " 2> nul")
+  with open(identifyinfo.name, 'rb') as f:
+    info = f.read().decode("utf-8")
   if info != '' and info != 'x':
     dimensions = info.split('x') #picks out the dimensions
     if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
       log(url + " fits minimum dimensions by identify test")
+      os.unlink(header.name)
+      os.unlink(identifyinfo.name)
       return True
     else:
       log(url + " is too small by identify test")
+      os.unlink(header.name)
+      os.unlink(identifyinfo.name)
       return False
-  os.system("file " + tmpdir + "/header > " + tmpdir + "/headernew 2>/dev/null")
-  with open(tmpdir + "/headernew", 'r') as headfile:
-    info = headfile.read()
+  os.unlink(identifyinfo.name)
+  if opsys != "Linux":
+    os.unlink(header.name)
+    log("dimensions of image could not be read")
+    return False
+  fileinfo = tempfile.NamedTemporaryFile(delete=False)
+  fileinfo.close()
+  os.system("file " + header.name + " > " + fileinfo.name + " 2>/dev/null")
+  with open(fileinfo.name, 'rb') as f:
+    info = f.read().decode("utf-8")
   if info != '':
     dimsearch = re.compile(r'[5-9]{1}[0-9]{2,}x[5-9]{1}[0-9]{2,}').search(info)
     if dimsearch is not None:
       dimensions = dimsearch.group().split('x')
       if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
         log(url + " fits minimum dimensions by regex test 1")
+        os.unlink(header.name)
+        os.unlink(fileinfo.name)
         return True
       else:
         log(url + " is too small by regex test 1")
+        os.unlink(header.name)
+        os.unlink(fileinfo.name)
         return False
     heightsearch = re.compile(r'(height=[5-9]{1}[0-9]{2,})').search(info)
     widthsearch = re.compile(r'(width=[5-9]{1}[0-9]{2,})').search(info)
@@ -425,48 +456,70 @@ def check_dimensions(url):
       width = widthsearch.group(1)[6:]
       if int(width) >= minwidth and int(height) >= minheight:
         log(url + " fits minimum dimensions by regex test 2")
+        os.unlink(header.name)
+        os.unlink(fileinfo.name)
         return True
       else:
         log(url + " is too small bby regex test 2")
+        os.unlink(header.name)
+        os.unlink(fileinfo.name)
         return False
   log("dimensions of image could not be read")
+  os.unlink(header.name)
+  os.unlink(fileinfo.name)
   return False
 
 #credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
 #in - string - direct url of the image to download
 #downloads the specified image to /tmp/wallpaper-reddit/download
-def download_image(url):
+def download_image(url, path):
   uaurl = urllib.request.Request(url, headers={ 'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
   f = urllib.request.urlopen(uaurl)
   print("downloading " + url)
-  with open(tmpdir + "/download", "wb") as local_file:
+  with open(path, "wb") as local_file:
     local_file.write(f.read())
   f.close()
+  if opsys == "Windows":
+    os.system("mogrify -format bmp " + path)
+  else:
+    os.system("mogrify -format jpg " + path)
 
-#in - string - command to set the wallpaper from ~/.wallpaper/wallpaper
+#in - string - command to set the wallpaper from ~/.wallpaper/wallpaper (or ~/Wallpaper-Reddit/wallpaper for Win)
 #uses the user-specified command to set the downloaded-then-moved wallpaper
 def set_wallpaper(wpsetcommand):
-  os.system(wpsetcommand)
-  print("wallpaper was set")
+##  if opsys == "Windows":
+##    if os.path.exists(walldir + "\\update_wallpaper.bat"):
+##      subprocess.Popen(walldir + '\\update_wallpaper.bat', shell=True)
+##    else:
+##      print("Windows requires a batch file named \"update_wallpaper.bat\" to exist in the wallpaper directory in order to refresh the wallpaper.  Check github.com/markubiak/wallpaper-reddit for the source code.")
+##      sys.exit(1)
+##  os.system(wpsetcommand)
+  print("wallpaper set command was run")
 
 #in - string - path of the image to resize
 #resizes the image to the minimum width and height from the config/args
 def resize_image(path):
   log("resizing the downloaded wallpaper")
   #uses the imagemagick 'convert' command to resize the image
-  command = 'convert ' + path + ' -resize ' + str(minwidth) + 'x' + str(minheight) + '^ -gravity center -extent ' + str(minwidth) + 'x' + str(minheight) + ' ' + path
-  os.system(command)
+  command = [spawn.find_executable("convert"), path, "-resize", str(minwidth) + "x" + str(minheight)]
+  if opsys == "Windows":
+    command = [spawn.find_executable("convert"), path, "-resize", str(minwidth) + "x" + str(minheight) + "^^",
+               "-gravity", "center", "-extent", str(minwidth) + "x" + str(minheight), path]
+  else:
+    command = [spawn.find_executable("convert"), path, "-resize", str(minwidth) + "x" + str(minheight) + "^",
+               "-gravity", "center", "-extent", str(minwidth) + "x" + str(minheight), path]
+  subprocess.call(command)
 
 #in - string, string - path of the image to set title on, title for image
 def set_image_title(path, title):
   log("setting title")
   newtitle = remove_tags(title)
   if titlefont == "":
-    subprocess.call(["convert", path, "-gravity", titlegravity, "-pointsize", str(titlesize),
+    subprocess.call([spawn.find_executable("convert"), path, "-pointsize", str(titlesize), "-gravity", titlegravity,
                      "-fill", "#00000080", "-annotate", "+7+7", newtitle,
                      "-fill", "white", "-annotate", "+5+5", newtitle, path])
   else:
-    subprocess.call(["convert", path, "-gravity", titlegravity, "-pointsize", str(titlesize), "-font", titlefont,
+    subprocess.call([spawn.find_executable("convert"), path, "-pointsize", str(titlesize), "-gravity", titlegravity, "-font", titlefont,
                      "-fill", "#00000080", "-annotate", "+7+7", newtitle,
                      "-fill", "white", "-annotate", "+5+5", newtitle, path])
 
@@ -514,7 +567,10 @@ def save_wallpaper():
   i = 0
   while os.path.isfile(savedir + '/wallpaper' + str(i)):
     i = i + 1
-  shutil.copyfile(walldir + '/wallpaper', savedir + '/wallpaper' + str(i))
+  if opsys == "Windows":
+    shutil.copyfile(walldir + '\\wallpaper.bmp', savedir + '\\wallpaper' + str(i))
+  else:
+    shutil.copyfile(walldir + '/wallpaper.bmp', savedir + '/wallpaper' + str(i))
   with open(walldir + '/title.txt', 'r') as f:
     title = f.read()
   with open(savedir + '/titles.txt', 'a') as f:
@@ -523,11 +579,12 @@ def save_wallpaper():
 
 #creates and runs the ~/.wallpaper/external.sh script
 def external_script():
-  if not os.path.isfile(walldir + '/external.sh'):
-    with open(walldir + '/external.sh', 'w') as external:
-      external.write('#! /bin/bash\n\n#You can enter custom commands here that will execute after the main program is finished')
-    os.system('chmod +x ' + walldir + '/external.sh')
-  os.system('bash ' + walldir + '/external.sh')
+  if opsys == 'Linux':
+    if not os.path.isfile(walldir + '/external.sh'):
+      with open(walldir + '/external.sh', 'w') as external:
+        external.write('#! /bin/bash\n\n#You can enter custom commands here that will execute after the main program is finished')
+      os.system('chmod +x ' + walldir + '/external.sh')
+    os.system('bash ' + walldir + '/external.sh')
 
 #in: a list of subreddits
 #out: the name of a random subreddit
