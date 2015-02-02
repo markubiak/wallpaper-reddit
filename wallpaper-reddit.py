@@ -265,7 +265,7 @@ def parse_config():
   titlefont = config.get('Title Overlay', 'titlefont', fallback='')
   startupinterval = config.getint('Startup', 'interval', fallback=3)
   startupattempts = config.getint('Startup', 'attempts', fallback=10)
-  savedir = os.path.expanduser(config.get('Save', 'directory', fallback=os.path.expanduser("~/Pictures/Wallpaper")))
+  savedir = os.path.expanduser(config.get('Save', 'directory', fallback="~/Pictures/Wallpaper"))
 
 #parses command-line arguments and stores them to proper global variables
 def parse_args():
