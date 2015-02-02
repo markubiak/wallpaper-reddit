@@ -6,7 +6,7 @@ This is my first foray into Python, as Java is the only language I "know."  I al
 Special thanks to users edigiacomo, who added title overlays and removed the dependency on curl, and orzarchi who added dependency checks.
 
 #Dependencies
-- imagemagick package (just convert and identify programs)
+- imagemagick package (convert, identify, and mogrify, almost always in the main package).  For Windows, install from imagemagick.org, and make sure to have the installer update the exectable search path (checked by default)
 
 #Installation
 Everything's pretty straightforward.  You can run the script just as any other python script in any folder, but to use it easily on terminal, move the script to /usr/local/bin/wallpaper-reddit.
@@ -35,8 +35,6 @@ Now, the script will throw errors until you properly configure it.  The config f
 
 --resize:  will resize the image to the height and width as specified by the command-line options or the config file before it is moved from /tmp to your home directory.  Useful for space saving and desktops that won't auto resize.  The default can be set in the config file.
 
---nocleanup:  will not remove the wallpaper-reddit folder from /tmp upon the script's completion.  The default can be set in the config file.
-
 #Startup
 If wallpaper-reddit is run with the --startup flag, the program will wait on an internet connection.  Options for the startup can only be set in the config file.  They are under the [Startup] section: interval and attempts.  The script will try to make a connection to reddit.com $attempts times at every $interval seconds.  For example, the default setting is an interval of 3 and 10 attempts, so the script will try to connect to reddit every 3 seconds for up to 10 tries, giving a total of 30 seconds before the scrpit gives up.  As of v1.2, it should also catch if it is being redirected by the router (IE hotel/airport WiFi) As a reminder, this feature is only activated by the --startup flag
 
@@ -50,11 +48,11 @@ If wallpaper-reddit is run with the --save flag, no wallpaper will be downloaded
 There is a function to blacklist a certain wallpaper from the script, if it is particularly ugly.  Simply run the script with the --blacklist flag.  The script will run as usual, but additionally blacklist your current wallpaper.  You'll get a new wallpaper and never see the old one again.
 
 #External commands and wallpaper info
-Because more information is always better, much more than the wallpaper exists in ~/.wallpaper.
+Because more information is always better, much more than the wallpaper itself exists in ~/.wallpaper.
 - blacklist.txt contains the urls of blacklisted wallpapers, one can manually add urls without issue.
 - url.txt is the url of the current wallpaper
 - title.txt is the title of the current wallpaper (useful if you want to put the title into conky!)
-- external.sh is a bash script that is run at the end of every execution of the script.  Any extra commands to deal with the wallpaper can be safely places in this bash script.  I personally have mine darken my xfce4-panel if the wallpaper is too bright at the top, and set the wallpaper as my SLiM/xscreensaver background.
+- external.sh is a bash script that is run at the end of every execution of the script (Linux only).  Any extra commands to deal with the wallpaper can be safely places in this bash script.  I personally have mine darken my xfce4-panel if the wallpaper is too bright at the top, and set the wallpaper as my SLiM/xscreensaver background.
 
 #Hacks for window managers that refuse to change wallpaper
 Some WMs (like Pantheon) will not detect when a wallpaper updates.  Some, like XFCE, only need to have the wallpaper set to something else, then reset (thus why there is an example for it in there that does so).  However, some WMs will cache the wallpaper, which makes downloading a new one pointless, as the old one will simply be used.  To get around this, one can utilize change the command to change the wallpaper to run a bash script.  Edit ~/.config/wallpaper-reddit/wallpaper-reddit.conf and change the line to:
