@@ -493,7 +493,7 @@ def set_wallpaper(wpsetcommand):
 ##    else:
 ##      print("Windows requires a batch file named \"update_wallpaper.bat\" to exist in the wallpaper directory in order to refresh the wallpaper.  Check github.com/markubiak/wallpaper-reddit for the source code.")
 ##      sys.exit(1)
-##  os.system(wpsetcommand)
+  os.system(wpsetcommand)
   print("wallpaper set command was run")
 
 #in - string - path of the image to resize
