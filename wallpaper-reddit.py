@@ -119,7 +119,7 @@ def log(info):
 
 #checks that all required commands can be found
 def check_requirements():
-  for cmd in (('convert','imagemagick'),('identify','imagemagick'),('mogrify','imagemagick'):
+  for cmd in (('convert','imagemagick'),('identify','imagemagick'),('mogrify','imagemagick')):
     if not spawn.find_executable(cmd[0]):
       print("Missing required program '%s'." %cmd[1])
       print("Please install from the package package manager and try again")
