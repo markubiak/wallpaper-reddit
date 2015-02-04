@@ -436,7 +436,7 @@ def check_dimensions(url):
   with open(fileinfo.name, 'rb') as f:
     info = f.read().decode("utf-8")
   if info != '':
-    dimsearch = re.compile(r'[5-9]{1}[0-9]{2,}x[5-9]{1}[0-9]{2,}').search(info)
+    dimsearch = re.search('([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})x([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
     if dimsearch is not None:
       dimensions = dimsearch.group().split('x')
       if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
@@ -449,8 +449,8 @@ def check_dimensions(url):
         os.unlink(header.name)
         os.unlink(fileinfo.name)
         return False
-    heightsearch = re.compile(r'(height=[5-9]{1}[0-9]{2,})').search(info)
-    widthsearch = re.compile(r'(width=[5-9]{1}[0-9]{2,})').search(info)
+    heightsearch = re.search('width=([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
+    widthsearch = re.search('([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
     if heightsearch is not None and widthsearch is not None:
       height = heightsearch.group(1)[7:]
       width = widthsearch.group(1)[6:]
@@ -570,7 +570,7 @@ def save_wallpaper():
   if opsys == "Windows":
     shutil.copyfile(walldir + '\\wallpaper.bmp', savedir + '\\wallpaper' + str(i))
   else:
-    shutil.copyfile(walldir + '/wallpaper.bmp', savedir + '/wallpaper' + str(i))
+    shutil.copyfile(walldir + '/wallpaper.jpg', savedir + '/wallpaper' + str(i))
   with open(walldir + '/title.txt', 'r') as f:
     title = f.read()
   with open(savedir + '/titles.txt', 'a') as f:
