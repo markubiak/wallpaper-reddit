@@ -240,7 +240,7 @@ def parse_config():
   global savedir
   global randomsub
   subs = config.get('Options', 'subs', fallback='earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes')
-  subs = subs.split(',')
+  subs = [x.strip() for x in subs.split(',')]
   maxlinks = config.getint('Options', 'maxlinks', fallback=15)
   minwidth = config.getint('Options', 'minwidth', fallback=1024)
   minheight = config.getint('Options', 'minheight', fallback=768)
