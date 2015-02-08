@@ -193,11 +193,12 @@ def check_not_redirected():
 def wait_for_connection(tries, interval):
   log('Waiting for a connection...')
   for i in range(tries):
-    #Reloads /etc/resolv.conf
-    #credit: http://stackoverflow.com/questions/21356781/urrlib2-urlopen-name-or-service-not-known-persists-when-starting-script-witho
-    libc = ctypes.cdll.LoadLibrary('libc.so.6')
-    res_init = libc.__res_init
-    res_init()
+    if opsys == "Linux":
+      #Reloads /etc/resolv.conf
+      #credit: http://stackoverflow.com/questions/21356781/urrlib2-urlopen-name-or-service-not-known-persists-when-starting-script-witho
+      libc = ctypes.cdll.LoadLibrary('libc.so.6')
+      res_init = libc.__res_init
+      res_init()
     log('Attempt #' + str(i + 1) + ' to connect...')
     if connected('http://www.reddit.com'):
       log('Connected to the internet, checking if you\'re being redirectied...')
@@ -487,13 +488,10 @@ def download_image(url, path):
 #in - string - command to set the wallpaper from ~/.wallpaper/wallpaper (or ~/Wallpaper-Reddit/wallpaper for Win)
 #uses the user-specified command to set the downloaded-then-moved wallpaper
 def set_wallpaper(wpsetcommand):
-##  if opsys == "Windows":
-##    if os.path.exists(walldir + "\\update_wallpaper.bat"):
-##      subprocess.Popen(walldir + '\\update_wallpaper.bat', shell=True)
-##    else:
-##      print("Windows requires a batch file named \"update_wallpaper.bat\" to exist in the wallpaper directory in order to refresh the wallpaper.  Check github.com/markubiak/wallpaper-reddit for the source code.")
-##      sys.exit(1)
-  os.system(wpsetcommand)
+  if opsys == "Windows":
+    ctypes.windll.user32.SystemParametersInfoW(0x14, 0, walldir + "\\wallpaper.bmp", 0)
+  else:
+    os.system(wpsetcommand)
   print("wallpaper set command was run")
 
 #in - string - path of the image to resize
