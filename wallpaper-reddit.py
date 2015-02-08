@@ -214,10 +214,11 @@ def make_config():
   config = configparser.ConfigParser()
   config['SetCommand'] = OrderedDict([('setcommand', '')])
   config['SetCommandExamples'] = OrderedDict([('examples', 'feel free to delete these, wallpaper will be ~/.wallpaper/wallpaper'),
-                           ('example_gnome3: gnome3 (Unity, Cinnamon, Gnome 3)', 'gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper'),
-                           ('example_gnome2: gnome2 (Metacity, MATE)', 'gconftool-2 -t string -s /desktop/gnome/background/picture_filename "/home/user/.wallpaper/wallpaper"'),
-                           ('example_xfce4', 'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" && xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "/home/user/.wallpaper/wallpaper"'),
-                           ('example_bash', 'bash /home/user/.config/wallpaper-reddit/some-script.sh')])
+                                              ('example_gnome3: gnome3 (Unity, Cinnamon, Gnome 3)', 'gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper'),
+                                              ('example_gnome2: gnome2 (Metacity, MATE)', 'gconftool-2 -t string -s /desktop/gnome/background/picture_filename "/home/user/.wallpaper/wallpaper"'),
+                                              ('example_xfce4', 'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" && xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "/home/user/.wallpaper/wallpaper"'),
+                                              ('example_bash', 'bash /home/user/.config/wallpaper-reddit/some-script.sh'),
+                                              ('example_windows', 'Can be blank, unused for Windows operating systems')])
   config['Options'] = OrderedDict([('subs', 'earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes'),
                         ('minwidth', '1024'),
                         ('minheight', '768'),
