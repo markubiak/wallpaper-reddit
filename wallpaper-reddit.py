@@ -489,7 +489,7 @@ def download_image(url, path):
 #uses the user-specified command to set the downloaded-then-moved wallpaper
 def set_wallpaper(wpsetcommand):
   if opsys == "Windows":
-    ctypes.windll.user32.SystemParametersInfoW(0x14, 0, walldir + "\\wallpaper.bmp", 0)
+    ctypes.windll.user32.SystemParametersInfoW(0x14, 0, walldir + "\\wallpaper.bmp", 0x3)
   else:
     os.system(wpsetcommand)
   print("wallpaper set command was run")
