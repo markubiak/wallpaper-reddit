@@ -370,14 +370,14 @@ def choose_valid(links):
       if connected(link) and check_dimensions(link) and check_blacklist(link):
         if force_dl:
           return link, index
-        else:
+        elif os.path.isfile(walldir + '/url.txt'):
           with open(walldir + '/url.txt', 'r') as f:
             currlink = f.read()
             if currlink == link:
               print("current wallpaper is the most recent, will not re-download the same wallpaper.")
               sys.exit(0)
-            else:
-              return link, index
+        else:
+          return link, index
     else:
       log(link + " was not a valid image")
     index = index + 1
