@@ -376,6 +376,8 @@ def choose_valid(links):
             if currlink == link:
               print("current wallpaper is the most recent, will not re-download the same wallpaper.")
               sys.exit(0)
+            else:
+              return link,index
         else:
           return link, index
     else:
