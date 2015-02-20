@@ -82,7 +82,7 @@ def main():
     valid = choose_valid(links[0])
     valid_url = valid[0]
     title_index = valid[1]
-    title = titles[title_index].replace('\\"', '"')
+    title = titles[title_index]
     #prepare a temp file to downlad the wallpaper to
     tempimage = tempfile.NamedTemporaryFile(delete=False)
     tempimage.close()
@@ -122,7 +122,10 @@ def check_requirements():
   for cmd in (('convert','imagemagick'),('identify','imagemagick'),('mogrify','imagemagick')):
     if not spawn.find_executable(cmd[0]):
       print("Missing required program '%s'." %cmd[1])
-      print("Please install from the package package manager and try again")
+      if opsys == "Linux":
+        print("Please install from the package package manager and try again")
+      else:
+        print("Please install the imagemagick suite from http://imagemagick.org/script/binary-releases.php#windows and try again")
       sys.exit(1)
 
 #creates directories and files if they do not exist
