@@ -59,7 +59,7 @@ def main():
     #now create save directory, as that has to be loaded from conf
     make_save_dirs()
     #check to make sure the user has actually configged the program
-    if setcmd == '':
+    if setcmd == '' and opsys == 'Linux':
       print('It appears you have not set the command to set wallpaper from your DE.  Check the config file at ~/.config/wallpaper-reddit')
       sys.exit(1)
     #blacklist the current wallpaper if requested
@@ -95,8 +95,10 @@ def main():
     #move and set the wallpaper
     if opsys == "Windows":
       shutil.copyfile(tempimage.name, walldir + '\\wallpaper.bmp')
+      os.unlink(tempimage.name + ".bmp")
     else:
       shutil.copyfile(tempimage.name, walldir + '/wallpaper.jpg')
+      os.unlink(tempimage.name + ".jpg")
     os.unlink(tempimage.name)
     #save link of original image for reference and set the wallpaper
     save_info(valid_url, title)
@@ -277,10 +279,10 @@ def parse_args():
   parser = argparse.ArgumentParser(description="Pulls wallpapers from specified subreddits in reddit.com")
   parser.add_argument("subreddits", help="subreddits to check for wallpapers", nargs="*")
   parser.add_argument("-v", "--verbose", help="increases program verbosity", action="store_true")
+  parser.add_argument("-f", "--force", help="forces wallpapers to re-download even if it has the same url as the current wallpaper", action="store_true")
   parser.add_argument("--height", type=int, help='minimum height of the image in pixels')
   parser.add_argument("--width", type=int, help='minimum width of the image in pixels')
   parser.add_argument("--maxlinks", type=int, help="maximum amount of links to check before giving up")
-  parser.add_argument("--force", help="forces wallpapers to re-download even if it has the same url as the current wallpaper", action="store_true")
   parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection", action="store_true")
   parser.add_argument("--save", help='saves the current wallpaper (requires a subreddit, but does not use it or download wallpaper)', action="store_true")
   parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set", action="store_true")
@@ -376,6 +378,7 @@ def choose_valid(links):
     print("No links were returned from any of those subreddits. Are they valid?")
     sys.exit(1)
   index = 0
+  links = [check_imgur(link) for link in links]
   for link in links:
     log("checking url " + link)
     #checks for direct image links
@@ -395,11 +398,26 @@ def choose_valid(links):
               return link,index
         else:
           return link, index
+      log(link + " was not a valid image")
     else:
       log(link + " was not a valid image")
     index = index + 1
   print("No valid links found.  Exiting")
   sys.exit(1)
+
+#in - string - link to check
+#out - boolean, string - whether the link is valid, new link
+#checks the link, if from imgur, turns the likely invalid link into a direct image link
+def check_imgur(link):
+  #checks for a non-album imgur link
+  if link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg':
+    return link
+  if re.search('(imgur\.com)(?!/a/)', link):
+    newlink = link.replace("/gallery", "")
+    newlink += ".jpg"
+    return newlink
+  else:
+    return link
 
 #in - string - link to check dimensions of
 #out - boolean - if the link fits the proper dimensions
