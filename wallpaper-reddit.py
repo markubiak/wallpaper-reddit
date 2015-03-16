@@ -236,7 +236,10 @@ def make_config():
                               ('titlefont', '')])
   config['Startup'] = OrderedDict([('attempts', '10'),
                         ('interval', '3')])
-  config['Save'] = OrderedDict([('directory', '~/Pictures/Wallpapers')])
+  if opsys == 'Linux':
+    config['Save'] = {'directory': '~/Pictures/Wallpapers'}
+  else:
+    config['Save'] = {'directory': '~/My Pictures/Wallpapers'}
   with open(confdir + '/wallpaper-reddit.conf', 'w') as configfile:
     config.write(configfile)
 
