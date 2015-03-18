@@ -373,51 +373,30 @@ def get_links():
 #out - string, int - first link to match all criteria and its index (for matching it with a title)
 #takes in a list of links and attempts to find the first one that is a direct image link, is within the proper dimensions, and is not blacklisted
 def choose_valid(links):
-  #checks that there are subreddits to check
   if len(links) == 0:
     print("No links were returned from any of those subreddits. Are they valid?")
     sys.exit(1)
-  index = 0
-  links = [check_imgur(link) for link in links]
-  for link in links:
-    log("checking url " + link)
-    #checks for direct image links
-    if link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg':
-      log(link + " appears to be an image")
-      #if links is direct image, make sure the porgram can get the link, that it fits the minimum dimensions, and that it's not blacklisted
-      if connected(link) and check_dimensions(link) and check_blacklist(link):
-        if force_dl:
-          return link, index
-        elif os.path.isfile(walldir + '/url.txt'):
-          with open(walldir + '/url.txt', 'r') as f:
-            currlink = f.read()
-            if currlink == link:
-              print("current wallpaper is the most recent, will not re-download the same wallpaper.")
-              sys.exit(0)
-            else:
-              return link,index
+  for i, origlink in enumerate(links):
+    log("checking link #{0}: {1}".format(i, origlink))
+    link = origlink
+    if not(link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg'):
+      if re.search('(imgur\.com)(?!/a/)', link):
+        link = link.replace("/gallery", "")
+        link += ".jpg"
+      else:
+        continue
+    if not (connected(link) and check_dimensions(link) and check_blacklist(link)):
+      continue
+    def check_same_url(link):
+      with open(walldir + '/url.txt', 'r') as f:
+        currlink = f.read()
+        if currlink == link:
+          print("current wallpaper is the most recent, will not re-download the same wallpaper.")
+          sys.exit(0)
         else:
-          return link, index
-      log(link + " was not a valid image")
-    else:
-      log(link + " was not a valid image")
-    index = index + 1
-  print("No valid links found.  Exiting")
-  sys.exit(1)
-
-#in - string - link to check
-#out - boolean, string - whether the link is valid, new link
-#checks the link, if from imgur, turns the likely invalid link into a direct image link
-def check_imgur(link):
-  #checks for a non-album imgur link
-  if link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg':
-    return link
-  if re.search('(imgur\.com)(?!/a/)', link):
-    newlink = link.replace("/gallery", "")
-    newlink += ".jpg"
-    return newlink
-  else:
-    return link
+          return True
+    if force_dl or not(os.path.isfile(walldir + '/url.txt')) or check_same_url(link):
+      return link, i
 
 #in - string - link to check dimensions of
 #out - boolean - if the link fits the proper dimensions
