@@ -400,6 +400,8 @@ def choose_valid(links):
           return True
     if force_dl or not(os.path.isfile(walldir + '/url.txt')) or check_same_url(link):
       return link, i
+  print("No valid links were found from any of those subreddits.  Try increasing the maxlink parameter.")
+  sys.exit(0)
 
 #in - string - link to check dimensions of
 #out - boolean - if the link fits the proper dimensions
