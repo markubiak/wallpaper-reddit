@@ -349,7 +349,7 @@ def parse_args():
 def get_links():
   print("searching for valid images...")
   if randomsub:
-    parsedsubs = pick_random(subreddits)
+    parsedsubs = pick_random(subs)
   else:
     parsedsubs = subs[0]
     for sub in subs[1:]:
