@@ -458,11 +458,11 @@ def check_dimensions(url):
         os.unlink(header.name)
         os.unlink(fileinfo.name)
         return False
-    heightsearch = re.search('width=([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
-    widthsearch = re.search('([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
+    heightsearch = re.search('height=([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
+    widthsearch = re.search('width=([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
     if heightsearch is not None and widthsearch is not None:
-      height = heightsearch.group(1)[7:]
-      width = widthsearch.group(1)[6:]
+      height = heightsearch.group(1)
+      width = widthsearch.group(1)
       if int(width) >= minwidth and int(height) >= minheight:
         log(url + " fits minimum dimensions by regex test 2")
         os.unlink(header.name)
