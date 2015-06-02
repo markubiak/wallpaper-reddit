@@ -409,7 +409,7 @@ def choose_valid(links):
 def check_dimensions(url):
   resp = urllib.request.urlopen(urllib.request.Request(url, headers={
       'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7',
-      'Range': 'bytes=0-1000'
+      'Range': 'bytes=0-4096'
   }))
   header = tempfile.NamedTemporaryFile(delete=False)
   header.write(resp.read())
@@ -417,7 +417,7 @@ def check_dimensions(url):
   identifyinfo = tempfile.NamedTemporaryFile(delete=False)
   identifyinfo.close()
   if opsys == "Linux":
-    os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name + " 2> /dev/null")
+    os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name) #" 2> /dev/null")
   else:
     os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name + " 2> nul")
   with open(identifyinfo.name, 'rb') as f:
