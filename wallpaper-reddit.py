@@ -20,6 +20,7 @@ import time
 import urllib.request
 from collections import OrderedDict
 from distutils import spawn
+from PIL import Image
 from random import randint
 from socket import timeout
 from urllib.error import HTTPError,URLError
@@ -411,71 +412,11 @@ def check_dimensions(url):
       'User-Agent' : 'wallpaper-reddit python script by /u/MarcusTheGreat7',
       'Range': 'bytes=0-16384'
   }))
-  header = tempfile.NamedTemporaryFile(delete=False)
-  header.write(resp.read())
-  header.close()
-  identifyinfo = tempfile.NamedTemporaryFile(delete=False)
-  identifyinfo.close()
-  if opsys == "Linux":
-    os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name + " 2> /dev/null")
-  else:
-    os.system("identify -format %[fx:w]x%[fx:h] " + header.name + " > " + identifyinfo.name + " 2> nul")
-  with open(identifyinfo.name, 'rb') as f:
-    info = f.read().decode("utf-8")
-  if info != '' and info != 'x':
-    dimensions = info.split('x') # picks out the dimensions
-    if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
-      log(url + " fits minimum dimensions by identify test")
-      os.unlink(header.name)
-      os.unlink(identifyinfo.name)
-      return True
-    else:
-      log(url + " is too small by identify test")
-      os.unlink(header.name)
-      os.unlink(identifyinfo.name)
-      return False
-  os.unlink(identifyinfo.name)
-  if opsys != "Linux":
-    os.unlink(header.name)
-    log("dimensions of image could not be read")
-    return False
-  fileinfo = tempfile.NamedTemporaryFile(delete=False)
-  fileinfo.close()
-  os.system("file " + header.name + " > " + fileinfo.name + " 2>/dev/null")
-  with open(fileinfo.name, 'rb') as f:
-    info = f.read().decode("utf-8")
-  if info != '':
-    dimsearch = re.search('([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})x([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
-    if dimsearch is not None:
-      dimensions = dimsearch.group().split('x')
-      if int(dimensions[0]) >= minwidth and int(dimensions[1]) >= minheight:
-        log(url + " fits minimum dimensions by regex test 1")
-        os.unlink(header.name)
-        os.unlink(fileinfo.name)
-        return True
-      else:
-        log(url + " is too small by regex test 1")
-        os.unlink(header.name)
-        os.unlink(fileinfo.name)
-        return False
-    heightsearch = re.search('height=([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
-    widthsearch = re.search('width=([5-9]{1}[0-9]{2}|[1-9]{1}[0-9]{3,})', info)
-    if heightsearch is not None and widthsearch is not None:
-      height = heightsearch.group(1)
-      width = widthsearch.group(1)
-      if int(width) >= minwidth and int(height) >= minheight:
-        log(url + " fits minimum dimensions by regex test 2")
-        os.unlink(header.name)
-        os.unlink(fileinfo.name)
-        return True
-      else:
-        log(url + " is too small bby regex test 2")
-        os.unlink(header.name)
-        os.unlink(fileinfo.name)
-        return False
-  log("dimensions of image could not be read")
-  os.unlink(header.name)
-  os.unlink(fileinfo.name)
+  try:
+    with Image.open(resp) as im:
+      print("%dx%d" % im.size)
+  except IOError:
+    print("IOError")
   return False
 
 # credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
