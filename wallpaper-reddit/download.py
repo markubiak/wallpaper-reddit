@@ -1,9 +1,9 @@
+import re
+import sys
+import urllib.request
+
 import config
 import main
-import urllib.request
-import re
-
-import sys
 from PIL import Image
 
 

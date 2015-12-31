@@ -3,8 +3,6 @@ import os
 import shutil
 
 import config
-
-
 # in - string - command to set the wallpaper from ~/.wallpaper/wallpaper (or ~/Wallpaper-Reddit/wallpaper for Win)
 # uses the user-specified command to set the downloaded-then-moved wallpaper
 import main

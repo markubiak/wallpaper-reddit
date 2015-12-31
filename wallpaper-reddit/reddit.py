@@ -1,16 +1,14 @@
 import json
 import os
 import random
-import urllib.request
-from PIL import Image
-
-import sys
-
 import re
+import sys
+import urllib.request
 
 import config
 import connection
 import main
+from PIL import Image
 
 
 # in - string[] - list of subreddits to get links from
