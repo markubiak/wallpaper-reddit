@@ -1,19 +1,16 @@
 import ctypes
 import json
+import time
 import urllib.request
 from socket import timeout
 from urllib.error import HTTPError,URLError
+
+from wpreddit import config, main
 
 
 # in - string - web page url
 # out - boolean - connection status
 # checks whether the program can connect to the specified url
-import time
-
-import config
-import main
-
-
 def connected(url):
     try:
         uaurl = urllib.request.Request(url,

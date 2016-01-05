@@ -5,7 +5,7 @@ import platform
 import sys
 from collections import OrderedDict
 
-import main
+from wpreddit import main
 
 # global vars
 verbose = False
@@ -60,10 +60,6 @@ def create_config():
             "/wallpaper-reddit.conf.  You need to do some minimal configuration before the program will work")
         sys.exit(0)
     parse_config()
-    if setcmd == '' and opsys == 'Linux':
-            print("It appears you have not set the command to set wallpaper from your DE."
-                  "Check the config file at ~/.config/wallpaper-reddit")
-            sys.exit(1)
     parse_args()
 
 
@@ -71,17 +67,6 @@ def create_config():
 def make_config():
     config = configparser.ConfigParser()
     config['SetCommand'] = OrderedDict([('setcommand', '')])
-    config['SetCommandExamples'] = OrderedDict(
-        [('examples', 'feel free to delete these, wallpaper will be ~/.wallpaper/wallpaper.jpg'),
-         ('example_gnome3: gnome3 (Unity, Cinnamon, Gnome 3)',
-          'gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper.jpg'),
-         ('example_gnome2: gnome2 (Metacity, MATE)',
-          'gconftool-2 -t string -s /desktop/gnome/background/picture_filename "/home/user/.wallpaper/wallpaper.jpg"'),
-         ('example_xfce4',
-          'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "" && xfconf-query -c '
-          'xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s "/home/user/.wallpaper/wallpaper.jpg"'),
-         ('example_bash', 'bash /home/user/.config/wallpaper-reddit/some-script.sh'),
-         ('example_windows', 'Can be blank, unused for Windows operating systems')])
     config['Options'] = OrderedDict([('subs', 'earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes'),
                                      ('minwidth', '1920'),
                                      ('minheight', '1080'),

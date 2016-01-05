@@ -2,8 +2,7 @@ import re
 import sys
 import urllib.request
 
-import config
-import main
+from wpreddit import config, main
 from PIL import Image
 
 

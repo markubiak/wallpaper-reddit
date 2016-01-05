@@ -1,19 +1,36 @@
 import ctypes
 import os
 import shutil
+import sys
 
-import config
-# in - string - command to set the wallpaper from ~/.wallpaper/wallpaper (or ~/Wallpaper-Reddit/wallpaper for Win)
-# uses the user-specified command to set the downloaded-then-moved wallpaper
-import main
+from wpreddit import config, main
 
 
 def set_wallpaper():
     if config.opsys == "Windows":
         ctypes.windll.user32.SystemParametersInfoW(0x14, 0, config.walldir + "\\wallpaper.bmp", 0x3)
     else:
-        os.system(config.setcmd)
+        linux_wallpaper()
     print("wallpaper set command was run")
+
+
+def linux_wallpaper():
+    de = os.environ.get('DESKTOP_SESSION')
+    path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
+    if de in ["gnome", "unity", "cinnamon"]:
+        os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
+    elif de in ["mate"]:
+        os.system("gsettings set org.mate.background picture-filename '%s'" % path)
+    elif de in ['xfce']:
+        os.system("xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show -s ''")
+        os.system("xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s '%s'" % path)
+    else:
+        if config.setcmd == '':
+            print("Your DE could not be detected to set the wallpaper."
+                  "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit")
+            sys.exit(1)
+        else:
+            os.system(config.setcmd)
 
 
 # saves the wallpaper in the save directory from the config

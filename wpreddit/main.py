@@ -1,11 +1,7 @@
 import os
 import sys
 
-import config
-import connection
-import download
-import reddit
-import wallpaper
+from wpreddit import config, connection, download, reddit, wallpaper
 
 
 def run():
