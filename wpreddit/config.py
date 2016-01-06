@@ -18,8 +18,9 @@ subs = []
 minwidth = 0
 minheight = 0
 titlesize = 0
-titlegravity = "south"
-titlefont = ""
+titlealign_x = ""
+titlealign_y = ""
+titlevoffset = 0
 maxlinks = 0
 resize = False
 settitle = False
@@ -61,6 +62,7 @@ def create_config():
         sys.exit(0)
     parse_config()
     parse_args()
+    main.log("config and args parsed")
 
 
 # creates a default config file with examples in ~/.config/wallpaper-reddit
@@ -97,8 +99,9 @@ def parse_config():
     global minwidth
     global settitle
     global titlesize
-    global titlegravity
-    global titlefont
+    global titlealign_x
+    global titlealign_y
+    global titlevoffset
     global resize
     global setcmd
     global startupinterval
@@ -107,16 +110,17 @@ def parse_config():
     global randomsub
     subs = config.get('Options', 'subs', fallback='earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes')
     subs = [x.strip() for x in subs.split(',')]
-    maxlinks = config.getint('Options', 'maxlinks', fallback=15)
-    minwidth = config.getint('Options', 'minwidth', fallback=1024)
-    minheight = config.getint('Options', 'minheight', fallback=768)
+    maxlinks = config.getint('Options', 'maxlinks', fallback=20)
+    minwidth = config.getint('Options', 'minwidth', fallback=1920)
+    minheight = config.getint('Options', 'minheight', fallback=1080)
     resize = config.getboolean('Options', 'resize', fallback=False)
     randomsub = config.getboolean('Options', 'random', fallback=False)
     setcmd = config.get('SetCommand', 'setcommand', fallback='')
     settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
     titlesize = config.getint('Title Overlay', 'titlesize', fallback=20)
-    titlegravity = config.get('Title Overlay', 'titlegravity', fallback='south')
-    titlefont = config.get('Title Overlay', 'titlefont', fallback='')
+    titlealign_x = config.get('Title Overlay', 'titlealignx', fallback='left').lower()
+    titlealign_y = config.get('Title Overlay', 'titlealigny', fallback='top').lower()
+    titlevoffset = config.getint('Title Overlay', 'titlevoffset', fallback=0)
     startupinterval = config.getint('Startup', 'interval', fallback=3)
     startupattempts = config.getint('Startup', 'attempts', fallback=10)
     savedir = os.path.expanduser(config.get('Save', 'directory', fallback="~/Pictures/Wallpaper"))
@@ -147,13 +151,12 @@ def parse_args():
                         action="store_true")
     parser.add_argument("--settitle", help="write title over the image", action="store_true")
     parser.add_argument("--titlesize", type=int, help='font size of title in pixels')
-    parser.add_argument("--titlegravity",
-                        help='corner of title, follows imagemagick compass directions (south, north, northeast, etc.)')
-    parser.add_argument("--titlefont",
-                        help="font of the title overlay, use 'convert -list font' to get the list of valid fonts")
-    parser.add_argument("--nocleanup",
-                        help="does not remove the original downloaded image from the /tmp directory after wallpaper is set",
-                        action="store_false")
+    parser.add_argument("--titlealignx",
+                        help="alignment of the title on the X axis (left, right, center)")
+    parser.add_argument("--titlealigny",
+                        help="alignment of the title on the Y axis (top, bottom)")
+    parser.add_argument("--titlevoffset", type=int,
+                        help="offset, in pixels, that the title should be from the top/bottom of the image")
     args = parser.parse_args()
     global subs
     global verbose
@@ -164,11 +167,11 @@ def parse_args():
     global minheight
     global minwidth
     global titlesize
-    global titlegravity
-    global titlefont
+    global titlealign_x
+    global titlealign_y
+    global titlevoffset
     global resize
     global settitle
-    global cleanup
     global randomsub
     global blacklistcurrent
     if not args.subreddits == []:
@@ -185,18 +188,17 @@ def parse_args():
         minwidth = args.width
     if args.titlesize:
         titlesize = args.titlesize
-    if args.titlegravity:
-        titlegravity = args.titlegravity
-    if args.titlefont:
-        titlefont = args.titlefont
+    if args.titlealignx:
+        titlealign_x = args.titlealignx.lower()
+    if args.titlealigny:
+        titlealign_y = args.titlealigny.lower()
+    if args.titlevoffset:
+        titlevoffset = args.titlevoffset
     if args.resize:
         resize = True
     if args.settitle:
         settitle = True
-    if not args.nocleanup:
-        cleanup = False
     if args.random:
         randomsub = True
     if args.blacklist:
         blacklistcurrent = True
-    main.log("config and args parsed")

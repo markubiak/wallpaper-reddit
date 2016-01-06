@@ -3,14 +3,14 @@ import sys
 import urllib.request
 
 from wpreddit import config, main
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 # credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
 # in - string - direct url of the image to download
 # out - Image - image
-# downloads the specified image to path
-def download_image(url):
+# downloads the specified image and saves it to disk
+def download_image(url, title):
     uaurl = urllib.request.Request(url, headers={'User-Agent': 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
     f = urllib.request.urlopen(uaurl)
     print("downloading " + url)
@@ -18,8 +18,9 @@ def download_image(url):
         img = Image.open(f)
         if config.resize:
             main.log("resizing the downloaded wallpaper")
-            img.thumbnail((config.minwidth, config.minheight))
-        img = set_image_title(img, "testing")
+            img = ImageOps.fit(img, (config.minwidth, config.minheight), Image.ANTIALIAS)
+        if config.settitle:
+            img = set_image_title(img, title)
         if config.opsys == "Windows":
             img.save(config.walldir + '\\wallpaper.bmp', "BMP")
         else:
@@ -34,25 +35,26 @@ def set_image_title(img, title):
     main.log("setting title")
     title = remove_tags(title)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("fonts/Cantarell-Regular.otf", size=24)
+    font = ImageFont.truetype("fonts/Cantarell-Regular.otf", size=config.titlesize)
     x = 0
     y = 0
-    vertoffset = 100
-    align_x = "left"
-    align_y = "top"
-    if align_x is "left":
-        x = 0
-    elif align_x is "center":
+    if config.titlealign_x == "left":
+        x = 5
+    elif config.titlealign_x == "center":
         text_x = font.getsize(title)[0]
         x = (img.size[0] - text_x)/2
-    elif align_x is "right":
+    elif config.titlealign_x == "right":
         text_x = font.getsize(title)[0]
-        x = img.size[0] - text_x
-    if align_y is "top":
-        y = vertoffset
-    elif align_y is "bottom":
+        x = img.size[0] - text_x - 5
+    if config.titlealign_y == "top":
+        y = config.titlevoffset + 5
+    elif config.titlealign_y == "bottom":
         text_y = font.getsize(title)[1]
-        y = img.size[1] - text_y - vertoffset
+        y = img.size[1] - text_y - config.titlevoffset - 5
+    # shadow = Image.new('RGBA', img.size, (255,255,255,0))
+    # shadowdraw = ImageDraw.Draw(shadow)
+    # shadowdraw.text((x+2, y+2), title, font=font, fill=(255,255,255))
+    draw.text((x+2, y+2), title, font=font, fill=(0, 0, 0, 127))
     draw.text((x, y), title, font=font)
     del draw
     return img

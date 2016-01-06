@@ -25,9 +25,8 @@ def run():
         titles = links[1]
         valid = reddit.choose_valid(links[0])
         valid_url = valid[0]
-        title_index = valid[1]
-        title = titles[title_index]
-        download.download_image(valid_url)
+        title = titles[valid[1]]
+        img = download.download_image(valid_url, title)
         download.save_info(valid_url, title)
         wallpaper.set_wallpaper()
         external_script()
