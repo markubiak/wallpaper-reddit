@@ -3,7 +3,7 @@ import sys
 import urllib.request
 
 from wpreddit import config, main
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 
 
 # credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
@@ -19,6 +19,7 @@ def download_image(url):
         if config.resize:
             main.log("resizing the downloaded wallpaper")
             img.thumbnail((config.minwidth, config.minheight))
+        img = set_image_title(img, "testing")
         if config.opsys == "Windows":
             img.save(config.walldir + '\\wallpaper.bmp', "BMP")
         else:
@@ -29,20 +30,32 @@ def download_image(url):
 
 
 # in - string, string - path of the image to set title on, title for image
-# def set_image_title(path, title):
-#     log("setting title")
-#     #TODO: Set title with Pillow
-#     newtitle = remove_tags(title)
-#     if titlefont == "":
-#         subprocess.call([spawn.find_executable("convert"), path, "-pointsize", str(titlesize), "-gravity",titlegravity,
-#                          "-fill", "# 00000080", "-annotate", "+7+7", newtitle,
-#                          "-fill", "white", "-annotate", "+5+5", newtitle, path])
-#     else:
-#         subprocess.call(
-#             [spawn.find_executable("convert"), path, "-pointsize", str(titlesize), "-gravity", titlegravity, "-font",
-#              titlefont,
-#              "-fill", "# 00000080", "-annotate", "+7+7", newtitle,
-#              "-fill", "white", "-annotate", "+5+5", newtitle, path])
+def set_image_title(img, title):
+    main.log("setting title")
+    title = remove_tags(title)
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.truetype("fonts/Cantarell-Regular.otf", size=24)
+    x = 0
+    y = 0
+    vertoffset = 100
+    align_x = "left"
+    align_y = "top"
+    if align_x is "left":
+        x = 0
+    elif align_x is "center":
+        text_x = font.getsize(title)[0]
+        x = (img.size[0] - text_x)/2
+    elif align_x is "right":
+        text_x = font.getsize(title)[0]
+        x = img.size[0] - text_x
+    if align_y is "top":
+        y = vertoffset
+    elif align_y is "bottom":
+        text_y = font.getsize(title)[1]
+        y = img.size[1] - text_y - vertoffset
+    draw.text((x, y), title, font=font)
+    del draw
+    return img
 
 
 # in - string, string, - a url and a title
@@ -55,4 +68,11 @@ def save_info(url, title):
     with open(config.walldir + '/url.txt', 'w') as urlinfo:
         urlinfo.write(url)
     with open(config.walldir + '/title.txt', 'w') as titleinfo:
-        titleinfo.write(re.sub(' +', ' ', re.sub("[\[\(\<].*?[\]\)\>]", "", title)).strip())
+        titleinfo.write(remove_tags(title))
+
+
+# in - string - title of the picture
+# out - string - title without any annoying tags
+# removes the [tags] throughout the image
+def remove_tags(str):
+    return re.sub(' +', ' ', re.sub("[\[\(\<].*?[\]\)\>]", "", str)).strip()
