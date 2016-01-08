@@ -20,13 +20,12 @@ def run():
         if not connection.connected("http://www.reddit.com"):
             print("ERROR: You do not appear to be connected to Reddit. Exiting")
             sys.exit(1)
-        # download the image
         links = reddit.get_links()
         titles = links[1]
         valid = reddit.choose_valid(links[0])
         valid_url = valid[0]
         title = titles[valid[1]]
-        img = download.download_image(valid_url, title)
+        download.download_image(valid_url, title)
         download.save_info(valid_url, title)
         wallpaper.set_wallpaper()
         external_script()
