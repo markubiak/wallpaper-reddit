@@ -6,7 +6,7 @@ from wpreddit import config, connection, download, reddit, wallpaper
 
 def run():
     try:
-        config.create_config()
+        config.init_config()
         # blacklist the current wallpaper if requested
         if config.blacklistcurrent:
             reddit.blacklist_current()

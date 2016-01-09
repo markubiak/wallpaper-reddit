@@ -39,18 +39,18 @@ def set_image_title(img, title):
     x = 0
     y = 0
     if config.titlealign_x == "left":
-        x = 5
+        x = config.titleoffset_x
     elif config.titlealign_x == "center":
         text_x = font.getsize(title)[0]
         x = (img.size[0] - text_x)/2
     elif config.titlealign_x == "right":
         text_x = font.getsize(title)[0]
-        x = img.size[0] - text_x - 5
+        x = img.size[0] - text_x - config.titleoffset_x
     if config.titlealign_y == "top":
-        y = config.titlevoffset + 5
+        y = config.titleoffset_y
     elif config.titlealign_y == "bottom":
         text_y = font.getsize(title)[1]
-        y = img.size[1] - text_y - config.titlevoffset - 5
+        y = img.size[1] - text_y - config.titleoffset_y
     # shadow = Image.new('RGBA', img.size, (255,255,255,0))
     # shadowdraw = ImageDraw.Draw(shadow)
     # shadowdraw.text((x+2, y+2), title, font=font, fill=(255,255,255))

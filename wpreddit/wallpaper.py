@@ -27,7 +27,7 @@ def linux_wallpaper():
     else:
         if config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper."
-                  "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit")
+                  "You need to set and uncomment the 'setcommand' paramter at ~/.config/wallpaper-reddit")
             sys.exit(1)
         else:
             os.system(config.setcmd)
@@ -36,22 +36,6 @@ def linux_wallpaper():
 # saves the wallpaper in the save directory from the config
 # naming scheme is wallpaperN
 def save_wallpaper():
-    i = 0
-    while os.path.isfile(config.savedir + '/wallpaper' + str(i)):
-        i += 1
-    if config.opsys == "Windows":
-        shutil.copyfile(config.walldir + '\\wallpaper.bmp', config.savedir + '\\wallpaper' + str(i))
-    else:
-        shutil.copyfile(config.walldir + '/wallpaper.jpg', config.savedir + '/wallpaper' + str(i))
-    with open(config.walldir + '/title.txt', 'r') as f:
-        title = f.read()
-    with open(config.savedir + '/titles.txt', 'a') as f:
-        f.write('\n' + 'wallpaper' + str(i) + ': ' + title)
-    print("current wallpaper saved to " + config.savedir + '/wallpaper' + str(i))
-
-
-# creates directories for the saved images, as that directory has to be loaded from the config file
-def make_save_dirs():
     if not os.path.exists(config.savedir):
         os.makedirs(config.savedir)
         main.log(config.savedir + " created")
@@ -59,3 +43,16 @@ def make_save_dirs():
         with open(config.savedir + '/titles.txt', 'w') as f:
             f.write('Titles of the saved wallpapers:')
         main.log(config.savedir + "/titles.txt created")
+
+    i = 0
+    while os.path.isfile(config.savedir + '/wallpaper' + str(i)):
+        i += 1
+    if config.opsys == "Windows":
+        shutil.copyfile(config.walldir + '\\wallpaper.bmp', config.savedir + '\\wallpaper' + str(i) + '.bmp')
+    else:
+        shutil.copyfile(config.walldir + '/wallpaper.jpg', config.savedir + '/wallpaper' + str(i) + '.jpg')
+    with open(config.walldir + '/title.txt', 'r') as f:
+        title = f.read()
+    with open(config.savedir + '/titles.txt', 'a') as f:
+        f.write('\n' + 'wallpaper' + str(i) + ': ' + title)
+    print("current wallpaper saved to " + config.savedir + '/wallpaper' + str(i))

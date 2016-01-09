@@ -10,11 +10,11 @@ setup(
         description='A utility that downloads wallpapers from reddit',
         install_requires=['Pillow>=3.0'],
         package_data={
-            'wpreddit': ['fonts/Cantarell-Regular.otf']
+            'wpreddit': ['fonts/*.otf', 'conf_files/*.conf']
         },
         entry_points={
             'console_scripts': [
                 'wallpaper-reddit = wpreddit.main:run'
-                ]
-            }
+            ]
+        }
 )
