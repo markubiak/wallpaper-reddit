@@ -2,8 +2,8 @@ import re
 import sys
 import urllib.request
 
-from wpreddit import config, main
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+from wpreddit import config, main
 
 
 # credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
@@ -35,7 +35,7 @@ def set_image_title(img, title):
     main.log("setting title")
     title = remove_tags(title)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("fonts/Cantarell-Regular.otf", size=config.titlesize)
+    font = ImageFont.truetype(config.walldir + '/fonts/Cantarell-Regular.otf', size=config.titlesize)
     x = 0
     y = 0
     if config.titlealign_x == "left":

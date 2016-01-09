@@ -2,7 +2,6 @@ import argparse
 import configparser
 import os
 import platform
-import shutil
 
 from pkg_resources import resource_string
 from wpreddit import main
@@ -52,6 +51,11 @@ def init_config():
     if not os.path.exists(walldir + '/url.txt'):
         with open(walldir + '/url.txt', 'w') as urlfile:
             urlfile.write('')
+    if not os.path.exists(walldir + '/fonts'):
+        os.makedirs(walldir + '/fonts')
+    if not os.path.exists(walldir + '/fonts/Cantarell-Regular.otf'):
+        with open(walldir + '/fonts/Cantarell-Regular.otf', 'wb') as font:
+            font.write(resource_string(__name__, 'fonts/Cantarell-Regular.otf'))
     if not os.path.exists(confdir):
         os.makedirs(confdir)
         main.log(confdir + " created")
