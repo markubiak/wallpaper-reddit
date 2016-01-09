@@ -41,7 +41,7 @@ def init_config():
         confdir = os.path.expanduser("~/.config/wallpaper-reddit")
     else:
         walldir = os.path.expanduser("~/Wallpaper-Reddit")
-        confdir = os.path.expanduser("~/Wallpaper-Reddit/Config")
+        confdir = os.path.expanduser("~/Wallpaper-Reddit/config")
     if not os.path.exists(walldir):
         os.makedirs(walldir)
         main.log(walldir + " created")
@@ -101,7 +101,7 @@ def parse_config():
     setcmd = config.get('SetCommand', 'setcommand', fallback='')
     settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
     titlesize = config.getint('Title Overlay', 'titlesize', fallback=24)
-    titlealign_x = config.get('Title Overlay', 'titlealignx', fallback='left').lower()
+    titlealign_x = config.get('Title Overlay', 'titlealignx', fallback='right').lower()
     titlealign_y = config.get('Title Overlay', 'titlealigny', fallback='top').lower()
     titleoffset_x = config.getint('Title Overlay', 'titleoffsetx', fallback=5)
     titleoffset_y = config.getint('Title Overlay', 'titleoffsety', fallback=5)
