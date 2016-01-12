@@ -128,11 +128,12 @@ def parse_args():
     parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection",
                         action="store_true")
     parser.add_argument("--save",
-                        help='saves the current wallpaper (requires a subreddit, but does not use it or download wallpaper)',
+                        help='saves the current wallpaper (does not download a wallpaper)',
                         action="store_true")
-    parser.add_argument("--resize", help="resizes the image to the specified height and width after wallpaper is set",
+    parser.add_argument("--resize", help="resizes the image to the height and width"
+                                         "specified in the config after wallpaper is set",
                         action="store_true")
-    parser.add_argument("--blacklist", help="blacklists the current wallpaper and redownloads a new wallpaper",
+    parser.add_argument("--blacklist", help="blacklists the current wallpaper and downloads a new wallpaper",
                         action="store_true")
     parser.add_argument("--random",
                         help="will pick a random subreddit from the ones provided instead of turning them into a multireddit",
