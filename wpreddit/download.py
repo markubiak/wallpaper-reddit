@@ -3,7 +3,7 @@ import sys
 import urllib.request
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-from wpreddit import config, main
+from wpreddit import config
 
 
 # credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/

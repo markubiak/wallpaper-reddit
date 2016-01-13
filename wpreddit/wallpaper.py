@@ -3,7 +3,7 @@ import os
 import shutil
 import sys
 
-from wpreddit import config, main
+from wpreddit import config
 
 
 def set_wallpaper():
