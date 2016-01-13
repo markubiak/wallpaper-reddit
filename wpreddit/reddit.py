@@ -92,7 +92,7 @@ def check_dimensions(url):
                 config.log("Size checks out")
                 return True
     except IOError:
-        print("IOError")
+        config.log("Image dimensions could not be read")
     return False
 
 
