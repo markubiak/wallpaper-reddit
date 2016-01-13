@@ -5,7 +5,7 @@ import urllib.request
 from socket import timeout
 from urllib.error import HTTPError,URLError
 
-from wpreddit import config, main
+from wpreddit import config
 
 
 # in - string - web page url
@@ -41,7 +41,7 @@ def check_not_redirected():
 # out - boolean - whether the connection was successfully establised
 # waits for a connection to the specified url, or returns False if no connection could be made in the time frame
 def wait_for_connection(tries, interval):
-    main.log('Waiting for a connection...')
+    config.log('Waiting for a connection...')
     for i in range(tries):
         if config.opsys == "Linux":
             # Reloads /etc/resolv.conf
@@ -49,12 +49,12 @@ def wait_for_connection(tries, interval):
             libc = ctypes.cdll.LoadLibrary('libc.so.6')
             res_init = libc.__res_init
             res_init()
-        main.log('Attempt # ' + str(i + 1) + ' to connect...')
+        config.log('Attempt # ' + str(i + 1) + ' to connect...')
         if connected("http://www.reddit.com"):
-            main.log('Connected to the internet, checking if you\'re being redirectied...')
+            config.log('Connected to the internet, checking if you\'re being redirectied...')
             if check_not_redirected():
-                main.log('No redirection.  Starting the main script...')
+                config.log('No redirection.  Starting the main script...')
                 return True
-            main.log('Redirected.  Trying again...')
+            config.log('Redirected.  Trying again...')
         time.sleep(interval)
     return False

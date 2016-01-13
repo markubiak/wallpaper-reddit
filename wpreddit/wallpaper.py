@@ -38,11 +38,11 @@ def linux_wallpaper():
 def save_wallpaper():
     if not os.path.exists(config.savedir):
         os.makedirs(config.savedir)
-        main.log(config.savedir + " created")
+        config.log(config.savedir + " created")
     if not os.path.isfile(config.savedir + '/titles.txt'):
         with open(config.savedir + '/titles.txt', 'w') as f:
             f.write('Titles of the saved wallpapers:')
-        main.log(config.savedir + "/titles.txt created")
+        config.log(config.savedir + "/titles.txt created")
 
     i = 0
     while os.path.isfile(config.savedir + '/wallpaper' + str(i)):

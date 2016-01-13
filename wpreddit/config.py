@@ -4,7 +4,6 @@ import os
 import platform
 
 from pkg_resources import resource_string
-from wpreddit import main
 
 # global vars
 verbose = False
@@ -44,7 +43,7 @@ def init_config():
         confdir = os.path.expanduser("~/Wallpaper-Reddit/config")
     if not os.path.exists(walldir):
         os.makedirs(walldir)
-        main.log(walldir + " created")
+        log(walldir + " created")
     if not os.path.exists(walldir + '/blacklist.txt'):
         with open(walldir + '/blacklist.txt', 'w') as blacklist:
             blacklist.write('')
@@ -58,7 +57,7 @@ def init_config():
             font.write(resource_string(__name__, 'fonts/Cantarell-Regular.otf'))
     if not os.path.exists(confdir):
         os.makedirs(confdir)
-        main.log(confdir + " created")
+        log(confdir + " created")
     if not os.path.isfile(confdir + '/wallpaper-reddit.conf'):
         if opsys == 'Linux':
             cfile = resource_string(__name__, 'conf_files/linux.conf')
@@ -68,7 +67,7 @@ def init_config():
             f.write(cfile)
     parse_config()
     parse_args()
-    main.log("config and args parsed")
+    log("config and args parsed")
 
 
 # reads the configuration at ~/.config/wallpaper-reddit
@@ -163,3 +162,9 @@ def parse_args():
         randomsub = True
     if args.blacklist:
         blacklistcurrent = True
+
+# in - string - messages to print
+# takes a string and will print it as output if verbose
+def log(info):
+    if verbose:
+        print(info)

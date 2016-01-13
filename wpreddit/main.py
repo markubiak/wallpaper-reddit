@@ -33,13 +33,6 @@ def run():
         sys.exit(1)
 
 
-# in - string - messages to print
-# takes a string and will print it as output if verbose
-def log(info):
-    if config.verbose:
-        print(info)
-
-
 # creates and runs the ~/.wallpaper/external.sh script
 def external_script():
     if config.opsys == 'Linux':

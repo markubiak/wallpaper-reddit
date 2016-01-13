@@ -21,7 +21,7 @@ def get_links():
         for sub in config.subs[1:]:
             parsedsubs = parsedsubs + '+' + sub
     url = "http://www.reddit.com/r/" + parsedsubs + ".json?limit=" + str(config.maxlinks)
-    main.log("Grabbing json file " + url)
+    config.log("Grabbing json file " + url)
     uaurl = urllib.request.Request(url, headers={
         'User-Agent': 'wallpaper-reddit python script, github.com/markubiak/wallpaper-reddit'})
     response = urllib.request.urlopen(uaurl)
@@ -51,7 +51,7 @@ def choose_valid(links):
         print("No links were returned from any of those subreddits. Are they valid?")
         sys.exit(1)
     for i, origlink in enumerate(links):
-        main.log("checking link # {0}: {1}".format(i, origlink))
+        config.log("checking link # {0}: {1}".format(i, origlink))
         link = origlink
         if not (link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg'):
             if re.search('(imgur\.com)(?!/a/)', link):
@@ -89,7 +89,7 @@ def check_dimensions(url):
         with Image.open(resp) as img:
             dimensions = img.size
             if dimensions[0] >= config.minwidth and dimensions[1] >= config.minheight:
-                main.log("Size checks out")
+                config.log("Size checks out")
                 return True
     except IOError:
         print("IOError")

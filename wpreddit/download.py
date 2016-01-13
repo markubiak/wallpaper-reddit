@@ -17,7 +17,7 @@ def download_image(url, title):
     try:
         img = Image.open(f)
         if config.resize:
-            main.log("resizing the downloaded wallpaper")
+            config.log("resizing the downloaded wallpaper")
             img = ImageOps.fit(img, (config.minwidth, config.minheight), Image.ANTIALIAS)
         if config.settitle:
             img = set_image_title(img, title)
@@ -32,7 +32,7 @@ def download_image(url, title):
 
 # in - string, string - path of the image to set title on, title for image
 def set_image_title(img, title):
-    main.log("setting title")
+    config.log("setting title")
     title = remove_tags(title)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(config.walldir + '/fonts/Cantarell-Regular.otf', size=config.titlesize)
