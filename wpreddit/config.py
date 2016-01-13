@@ -2,7 +2,6 @@ import argparse
 import configparser
 import os
 import platform
-
 from pkg_resources import resource_string
 
 # global vars

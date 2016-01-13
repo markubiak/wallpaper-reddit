@@ -3,7 +3,7 @@ import json
 import time
 import urllib.request
 from socket import timeout
-from urllib.error import HTTPError,URLError
+from urllib.error import HTTPError, URLError
 
 from wpreddit import config
 

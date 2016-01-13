@@ -3,10 +3,10 @@ import os
 import random
 import re
 import sys
-import urllib.request
+from PIL import Image
+from urllib import request
 
 from wpreddit import config, connection
-from PIL import Image
 
 
 # in - string[] - list of subreddits to get links from
@@ -22,9 +22,9 @@ def get_links():
             parsedsubs = parsedsubs + '+' + sub
     url = "http://www.reddit.com/r/" + parsedsubs + ".json?limit=" + str(config.maxlinks)
     config.log("Grabbing json file " + url)
-    uaurl = urllib.request.Request(url, headers={
+    uaurl = request.Request(url, headers={
         'User-Agent': 'wallpaper-reddit python script, github.com/markubiak/wallpaper-reddit'})
-    response = urllib.request.urlopen(uaurl)
+    response = request.urlopen(uaurl)
     content = response.read().decode('utf-8')
     try:
         data = json.loads(content)
@@ -81,18 +81,15 @@ def choose_valid(links):
 # out - boolean - if the link fits the proper dimensions
 # takes a link and checks to see if the link will match the minimum dimensions
 def check_dimensions(url):
-    resp = urllib.request.urlopen(urllib.request.Request(url, headers={
+    resp = request.urlopen(request.Request(url, headers={
         'User-Agent': 'wallpaper-reddit python script by /u/MarcusTheGreat7',
         'Range': 'bytes=0-16384'
     }))
-    try:
-        with Image.open(resp) as img:
-            dimensions = img.size
-            if dimensions[0] >= config.minwidth and dimensions[1] >= config.minheight:
-                config.log("Size checks out")
-                return True
-    except IOError:
-        config.log("Image dimensions could not be read")
+    with Image.open(resp) as img:
+        dimensions = img.size
+        if dimensions[0] >= config.minwidth and dimensions[1] >= config.minheight:
+            config.log("Size checks out")
+            return True
     return False
 
 

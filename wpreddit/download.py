@@ -1,8 +1,8 @@
 import re
 import sys
-import urllib.request
-
 from PIL import Image, ImageDraw, ImageFont, ImageOps
+from urllib import request
+
 from wpreddit import config
 
 
@@ -11,8 +11,8 @@ from wpreddit import config
 # out - Image - image
 # downloads the specified image and saves it to disk
 def download_image(url, title):
-    uaurl = urllib.request.Request(url, headers={'User-Agent': 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
-    f = urllib.request.urlopen(uaurl)
+    uaurl = request.Request(url, headers={'User-Agent': 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
+    f = request.urlopen(uaurl)
     print("downloading " + url)
     try:
         img = Image.open(f)
