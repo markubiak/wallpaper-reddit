@@ -1,6 +1,7 @@
 import ctypes
 import os
-import random.randint
+import random
+import re
 import shutil
 import sys
 
@@ -21,6 +22,10 @@ def linux_wallpaper():
     if de in ["gnome", "unity", "ubuntu", "cinnamon"]:
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
     elif de in ["pantheon"]:
+        files = os.listdir(config.walldir)
+        for file in files:
+            if re.search('wallpaper[0-9]+\.jpg', file) is not None:
+                os.remove(config.walldir + "/" + file)
         randint = random.randint(0, 65535)
         randpath = os.path.expanduser("~/.wallpaper/wallpaper%s.jpg" % randint)
         shutil.copyfile(path, randpath)
