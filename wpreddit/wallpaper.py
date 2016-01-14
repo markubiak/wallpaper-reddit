@@ -17,7 +17,7 @@ def set_wallpaper():
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
     path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
-    if de in ["gnome", "unity", "cinnamon"]:
+    if de in ["gnome", "unity", "ubuntu", "cinnamon"]:
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
     elif de in ["mate"]:
         os.system("gsettings set org.mate.background picture-filename '%s'" % path)
