@@ -1,5 +1,6 @@
 import ctypes
 import os
+import random.randint
 import shutil
 import sys
 
@@ -19,6 +20,11 @@ def linux_wallpaper():
     path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
     if de in ["gnome", "unity", "ubuntu", "cinnamon"]:
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
+    elif de in ["pantheon"]:
+        randint = random.randint(0, 65535)
+        randpath = os.path.expanduser("~/.wallpaper/wallpaper%s.jpg" % randint)
+        shutil.copyfile(path, randpath)
+        os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % randpath)
     elif de in ["mate"]:
         os.system("gsettings set org.mate.background picture-filename '%s'" % path)
     elif de in ['xfce']:
