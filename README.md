@@ -24,10 +24,10 @@ If no subreddits are specified, the script will default to the top image from th
   wallpaper-reddit -h
 
 #Configuration
-The config file is in ~/.config/wallpaper-reddit, and will be created automatically.  Currently, the GNOME, XFCE, MATE, Unity, and Cinnamon Desktop Environments should be automatically detected and the program should set the wallpaper without any extra work.  However, due to the varying nature of window managers, it is possible, even likely, that you may have to specify a custom command to set your wallpaper.  The program will prompt you for this if this is the case.  This can be researched per desktop environment.  Changing the other options in the config file is optional, but recommended.
+The config file is in ~/.config/wallpaper-reddit, and will be created automatically.  Currently, the GNOME, XFCE, MATE, Unity, and Cinnamon Desktop Environments should be automatically detected and the program should set the wallpaper without any extra work.  However, due to the varying nature of window managers, it is possible, even likely, that you may have to specify a custom command to set your wallpaper.  The program will prompt you for this if this is the case; the exact command can be researched per desktop environment.  If your desktop environment is not supported, please file an issue so that automatic support can be implemented for others.
 - minwidth and minheight set the minimum dimensions the program will consider a valid candidate for a wallpaper.  If --resize is enabled, the script will resize the image to those dimensions before setting the wallpaper.
 - maxlinks is the maximum number of links the script will go through before giving up.
-- resize does the same thing as the --resize flag.
+- resize does the same thing as the --resize flag.  It is enabled by default.
 - random does the same thing as the --random flag.
 
 #Startup
@@ -48,21 +48,3 @@ Because more information is always better, much more than the wallpaper itself e
 - url.txt is the url of the current wallpaper
 - title.txt is the title of the current wallpaper (useful if you want to put the title into conky)
 - external.sh is a bash script that is run at the end of every execution of the script (Linux only).  Any extra commands to deal with the wallpaper can be safely placed in this bash script.  I personally have mine darken my xfce4-panel if the wallpaper is too bright at the top, and set the wallpaper as my SLiM/xscreensaver background.
-
-#Hacks for window managers that refuse to change wallpaper
-Some DEs will cache the wallpaper, which makes downloading a new one pointless, as the old one will simply be used.  To get around this, one can utilize change the command to change the wallpaper to run a bash script.  Edit ~/.config/wallpaper-reddit/wallpaper-reddit.conf and change the line to:
-
-  setcommand = bash /home/user/.wallpaper/setwallpaper.sh
-  
-Then, create a bash script, ~/.wallpaper/setwallpaper.sh, and copy-paste the following into it (make sure to change the dirs to your username!)
-
-    #! /bin/bash
-    RAND=$RANDOM  #Creates a random int
-    cd /home/user/.wallpaper  #Navigate to the proper directory
-    rm `ls | grep wallpaper[0-9]`  #Removes any old copied wallpaper files (to reduce clutter)
-    cp wallpaper wallpaper$RAND  #Copies the wallpaper to the new file
-    gsettings set org.gnome.desktop.background picture-uri file:///home/user/.wallpaper/wallpaper$RAND  #Sets the wallpaper to the new, uncached file
-  
-Set the script as executable and everything should work!
-
-What this block of code does is generate a random int (0-32767) and copy the wallpaper to wallpaper(random int).  This creates a new file that the WM has not cached before, forcing it to reload the wallpaper.  Only a 1 in 2^16 chance of failure, good enough for me.  The second line also makes sure any previous wallpapers get cleaned up

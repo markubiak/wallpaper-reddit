@@ -128,8 +128,8 @@ def parse_args():
     parser.add_argument("--save",
                         help='saves the current wallpaper (does not download a wallpaper)',
                         action="store_true")
-    parser.add_argument("--resize", help="resizes the image to the height and width"
-                                         "specified in the config after wallpaper is set",
+    parser.add_argument("--resize", help="resizes the image to the height and width specified in the config after "
+                                         "wallpaper is set.  Enabled by default in the configuration file,",
                         action="store_true")
     parser.add_argument("--blacklist", help="blacklists the current wallpaper and downloads a new wallpaper",
                         action="store_true")
@@ -161,6 +161,7 @@ def parse_args():
         randomsub = True
     if args.blacklist:
         blacklistcurrent = True
+
 
 # in - string - messages to print
 # takes a string and will print it as output if verbose

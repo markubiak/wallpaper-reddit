@@ -19,8 +19,10 @@ def set_wallpaper():
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
     path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
-    if de in ["gnome", "unity", "ubuntu", "cinnamon"]:
+    if de in ["gnome", "unity", "ubuntu"]:
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
+    elif de in ["cinnamon"]:
+        os.system("gsettings set org.cinnamon.desktop.background picture-uri file://%s" % path)
     elif de in ["pantheon"]:
         files = os.listdir(config.walldir)
         for file in files:
@@ -38,7 +40,7 @@ def linux_wallpaper():
     else:
         if config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper."
-                  "You need to set and uncomment the 'setcommand' paramter at ~/.config/wallpaper-reddit")
+                  "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit")
             sys.exit(1)
         else:
             os.system(config.setcmd)
