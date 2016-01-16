@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-        name='Wallpaper Reddit',
+        name='wallpaper-reddit',
         version='3.0',
         packages=find_packages(),
         url='https://www.github.com/markubiak/wallpaper-reddit',
