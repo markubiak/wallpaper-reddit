@@ -2,11 +2,8 @@
 wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 2 has introduced meny changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
 
 #Installation
-DEB: [todo]  
-RPM: [todo]  
-AUR Package: [todo]  
-Windows MSI: [todo]  
-
+Packages for Windows and various Linux distributions can be found on the [Releases pages] (https://github.com/markubiak/wallpaper-reddit/releases)  
+[AUR Link](https://aur.archlinux.org/packages/wallpaper-reddit-git/)  
 From Source:  
 * Install Pillow 3.x or the libraries necessary to compile it from scratch if the distribution you're using does not package it:  
   - Ubuntu/Linux Mint/ElementaryOS: `sudo apt-get install python3-dev python3-setuptools libjpeg8-dev zlib1g-dev libfreetype6-dev`  
