@@ -50,3 +50,6 @@ Because more information is always better, much more than the wallpaper itself e
 - url.txt is the url of the current wallpaper
 - title.txt is the title of the current wallpaper (useful if you want to put the title into conky)
 - external.sh is a bash script that is run at the end of every execution of the script (Linux only).  Any extra commands to deal with the wallpaper can be safely placed in this bash script.  I personally have mine darken my xfce4-panel if the wallpaper is too bright at the top, and set the wallpaper as my SLiM/xscreensaver background.
+
+#Contact
+If there is an issue with the program, please file a github issue.  If you need more specific help troubleshooting a specific desktop or have an issue that isn't worthy of github, feel free to reach out to me on Reddit: [/u/MarcusTheGreat7](https://www.reddit.com/u/MarcusTheGreat7)
