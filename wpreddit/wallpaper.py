@@ -60,7 +60,7 @@ def save_wallpaper():
         config.log(config.savedir + "/titles.txt created")
 
     i = 0
-    while os.path.isfile(config.savedir + '/wallpaper' + str(i)):
+    while os.path.isfile(config.savedir + '/wallpaper' + str(i) + '.jpg'):
         i += 1
     if config.opsys == "Windows":
         shutil.copyfile(config.walldir + '\\wallpaper.bmp', config.savedir + '\\wallpaper' + str(i) + '.bmp')
