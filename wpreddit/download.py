@@ -66,7 +66,7 @@ def set_image_title(img, title):
 def save_info(url, title):
     # Reddit escapes the unicode in json, so when the json is downloaded, the info has to be manually re-encoded
     # and have the unicode characters reprocessed
-    title = title.encode('utf-8').decode('unicode-escape')
+    # title = title.encode('utf-8').decode('unicode-escape')
     with open(config.walldir + '/url.txt', 'w') as urlinfo:
         urlinfo.write(url)
     with open(config.walldir + '/title.txt', 'w') as titleinfo:
