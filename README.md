@@ -2,8 +2,8 @@
 wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 2 has introduced meny changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
 
 #Installation
-RPMs for Fedora can be found on the [Releases pages] (https://github.com/markubiak/wallpaper-reddit/releases)
-Ubuntu 16.04 has finally updated python3-pil to version 3.x, so a .deb package for 16.04 and derivatives is coming shortly.  Older versions of Ubuntu and derivates unfortunately will have to build from source.
+RPMs for Fedora can be found on the [Releases pages] (https://github.com/markubiak/wallpaper-reddit/releases)  
+Ubuntu 16.04 has finally updated python3-pil to version 3.x, so a .deb package for 16.04 and derivatives is coming shortly.  Older versions of Ubuntu and derivates unfortunately will have to build from source.  
 Arch users can get the package from the [AUR](https://aur.archlinux.org/packages/wallpaper-reddit-git/)  
 
 From Source:  
