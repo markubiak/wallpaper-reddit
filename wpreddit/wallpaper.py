@@ -21,7 +21,7 @@ def linux_wallpaper():
     path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
     if config.setcmd != '':
         os.system(config.setcmd)
-    elif de in ["gnome", "unity", "ubuntu"]:
+    elif de in ["gnome", "gnome-wayland", "unity", "ubuntu"]:
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
     elif de in ["cinnamon"]:
         os.system("gsettings set org.cinnamon.desktop.background picture-uri file://%s" % path)
