@@ -19,7 +19,9 @@ def set_wallpaper():
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
     path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
-    if de in ["gnome", "unity", "ubuntu"]:
+    if config.setcmd != '':
+        os.system(config.setcmd)
+    elif de in ["gnome", "gnome-wayland", "unity", "ubuntu"]:
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
     elif de in ["cinnamon"]:
         os.system("gsettings set org.cinnamon.desktop.background picture-uri file://%s" % path)
@@ -57,15 +59,25 @@ def save_wallpaper():
             f.write('Titles of the saved wallpapers:')
         config.log(config.savedir + "/titles.txt created")
 
-    i = 0
-    while os.path.isfile(config.savedir + '/wallpaper' + str(i)):
-        i += 1
+    wpcount = 0
+    origpath = config.walldir
+    newpath = config.savedir
+
     if config.opsys == "Windows":
-        shutil.copyfile(config.walldir + '\\wallpaper.bmp', config.savedir + '\\wallpaper' + str(i) + '.bmp')
+        origpath = origpath + ('\\wallpaper.bmp')
+        while os.path.isfile(config.savedir + '\\wallpaper' + str(wpcount) + '.bmp'):
+            wpcount += 1
+        newpath = newpath + ('\\wallpaper' + str(wpcount) + '.bmp')
     else:
-        shutil.copyfile(config.walldir + '/wallpaper.jpg', config.savedir + '/wallpaper' + str(i) + '.jpg')
+        origpath = origpath + ('/wallpaper.jpg')
+        while os.path.isfile(config.savedir + '/wallpaper' + str(wpcount) + '.jpg'):
+            wpcount += 1
+        newpath = newpath + ('/wallpaper'  + str(wpcount) + '.jpg')
+    shutil.copyfile(origpath, newpath)
+
     with open(config.walldir + '/title.txt', 'r') as f:
         title = f.read()
     with open(config.savedir + '/titles.txt', 'a') as f:
-        f.write('\n' + 'wallpaper' + str(i) + ': ' + title)
-    print("current wallpaper saved to " + config.savedir + '/wallpaper' + str(i))
+        f.write('\n' + 'wallpaper' + str(wpcount) + ': ' + title)
+
+    print("Current wallpaper saved to " + newpath)

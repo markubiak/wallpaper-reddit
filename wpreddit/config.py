@@ -2,6 +2,7 @@ import argparse
 import configparser
 import os
 import platform
+import sys
 from pkg_resources import resource_string
 
 # global vars
@@ -89,6 +90,10 @@ def parse_config():
     global startupattempts
     global savedir
     global randomsub
+    if config.get('Title Overlay', 'titlegravity', fallback=None) is not None:
+        print("You are using an old (pre v3) configuration file.  Please delete your config file at " + confdir +
+              " and let the program create a new one.")
+        sys.exit(1)
     subs = config.get('Options', 'subs', fallback='earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes')
     subs = [x.strip() for x in subs.split(',')]
     maxlinks = config.getint('Options', 'maxlinks', fallback=20)
