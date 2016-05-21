@@ -1,5 +1,5 @@
 #About
-wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 2 has introduced meny changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
+wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 2 has introduced many changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
 
 #Installation
 RPMs for Fedora can be found on the [Releases pages] (https://github.com/markubiak/wallpaper-reddit/releases)  
