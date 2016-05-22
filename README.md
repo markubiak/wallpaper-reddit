@@ -1,14 +1,14 @@
 #About
-wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 2 has introduced many changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
+wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 3 has introduced many changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
 
 #Installation
-RPMs for Fedora can be found on the [Releases pages] (https://github.com/markubiak/wallpaper-reddit/releases)  
-Ubuntu 16.04 has finally updated python3-pil to version 3.x, so a .deb package for 16.04 and derivatives is coming shortly.  Older versions of Ubuntu and derivates unfortunately will have to build from source.  
+RPMs for Fedora 23, Fedora 24, and Ubuntu 16.04 can be found on the [Releases pages] (https://github.com/markubiak/wallpaper-reddit/releases)
+Users of Ubuntu derivatives <16.04 will have to build from source, as the version of PIL shipped with those versions of Ubuntu is outdated.
 Arch users can get the package from the [AUR](https://aur.archlinux.org/packages/wallpaper-reddit-git/)  
 
 From Source:  
 * Install Pillow 3.x or the libraries necessary to compile it from scratch if the distribution you're using does not package it:  
-  - Ubuntu/Linux Mint/ElementaryOS: `sudo apt-get install python3-dev python3-setuptools libjpeg8-dev zlib1g-dev libfreetype6-dev`  
+  - Ubuntu <16.04/Linux Mint/ElementaryOS: `sudo apt-get install python3-dev python3-setuptools libjpeg8-dev zlib1g-dev libfreetype6-dev`
   - Fedora: `sudo dnf install python3-imaging` (installed by default)  
   - Arch: `sudo pacman -S python-pillow`  
 * Clone the repository and navigate into the directory with the setup.py file.  
