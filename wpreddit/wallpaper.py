@@ -4,6 +4,7 @@ import random
 import re
 import shutil
 import sys
+from subprocess import Popen, PIPE
 
 from wpreddit import config
 
@@ -36,9 +37,15 @@ def linux_wallpaper():
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % randpath)
     elif de in ["mate"]:
         os.system("gsettings set org.mate.background picture-filename '%s'" % path)
-    elif de in ['xfce']:
-        os.system("xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show -s ''")
-        os.system("xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s '%s'" % path)
+    elif de in ["xfce", "xubuntu"]:
+        p = Popen(['xfconf-query', '-c', 'xfce4-desktop', '-p', '/backdrop', '-l'], stdout=PIPE)
+        props = p.stdout.read().decode("utf-8").split('\n')
+        for prop in props:
+            if "last-image" in prop or "image-path" in prop:
+                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s ''")
+                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s '%s'" % path)
+            if "image-show" in prop:
+                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s 'true'")
     else:
         if config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper."
