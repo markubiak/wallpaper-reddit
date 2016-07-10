@@ -35,12 +35,12 @@ opsys = platform.system()
 def init_config():
     global walldir
     global confdir
-    if opsys == "Linux":
-        walldir = os.path.expanduser("~/.wallpaper")
-        confdir = os.path.expanduser("~/.config/wallpaper-reddit")
-    else:
+    if opsys == "Windows":
         walldir = os.path.expanduser("~/Wallpaper-Reddit")
         confdir = os.path.expanduser("~/Wallpaper-Reddit/config")
+    else:
+        walldir = os.path.expanduser("~/.wallpaper")
+        confdir = os.path.expanduser("~/.config/wallpaper-reddit")
     if not os.path.exists(walldir):
         os.makedirs(walldir)
         log(walldir + " created")
