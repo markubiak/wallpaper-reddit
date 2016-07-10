@@ -12,6 +12,9 @@ from wpreddit import config
 def set_wallpaper():
     if config.opsys == "Windows":
         ctypes.windll.user32.SystemParametersInfoW(0x14, 0, config.walldir + "\\wallpaper.bmp", 0x3)
+    elif config.opsys == "Darwin":
+        path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
+        os.system("sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \"update data set value = '" + path + "'\" && killall Dock")
     else:
         linux_wallpaper()
     print("wallpaper set command was run")
