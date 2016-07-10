@@ -59,10 +59,10 @@ def init_config():
         os.makedirs(confdir)
         log(confdir + " created")
     if not os.path.isfile(confdir + '/wallpaper-reddit.conf'):
-        if opsys == 'Linux':
-            cfile = resource_string(__name__, 'conf_files/linux.conf')
-        else:
+        if opsys == 'Windows':
             cfile = resource_string(__name__, 'conf_files/windows.conf')
+        else:
+            cfile = resource_string(__name__, 'conf_files/unix.conf')
         with open(confdir + '/wallpaper-reddit.conf', 'wb') as f:
             f.write(cfile)
     parse_config()
@@ -112,12 +112,13 @@ def parse_config():
     startupattempts = config.getint('Startup', 'attempts', fallback=10)
 
     def get_default_savedir():
-        if opsys == 'Linux':
-            return "~/Pictures/Wallpapers"
-        else:
+        if opsys == 'Windows':
             return "~/My Pictures/Wallpapers"
+        else:
+            return "~/Pictures/Wallpapers"
 
     savedir = os.path.expanduser(config.get('Save', 'directory', fallback=get_default_savedir()))
+    print(get_default_savedir())
 
 
 # parses command-line arguments and stores them to proper global variables
