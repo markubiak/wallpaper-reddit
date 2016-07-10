@@ -11,7 +11,7 @@ From Source:
   - Ubuntu <16.04/Linux Mint 17/ElementaryOS: `sudo apt-get install python3-dev python3-setuptools libjpeg8-dev zlib1g-dev libfreetype6-dev`
   - Fedora: `sudo dnf install python3-imaging` (installed by default)  
   - Arch: `sudo pacman -S python-pillow`  
-  - Mac OS X: 
+  - Mac OS X El Capitan: 
     * `xcode-select --install`
     * `pip install pillow`
 * Clone the repository and navigate into the directory with the setup.py file.  
