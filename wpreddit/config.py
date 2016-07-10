@@ -118,7 +118,6 @@ def parse_config():
             return "~/Pictures/Wallpapers"
 
     savedir = os.path.expanduser(config.get('Save', 'directory', fallback=get_default_savedir()))
-    print(get_default_savedir())
 
 
 # parses command-line arguments and stores them to proper global variables
