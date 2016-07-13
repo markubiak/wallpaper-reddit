@@ -35,7 +35,7 @@ def run():
 
 # creates and runs the ~/.wallpaper/external.sh script
 def external_script():
-    if config.opsys == 'Linux':
+    if config.opsys == 'Linux' or config.opsys == 'Darwin':
         if not os.path.isfile(config.walldir + '/external.sh'):
             with open(config.walldir + '/external.sh', 'w') as external:
                 external.write(
