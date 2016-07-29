@@ -1,5 +1,6 @@
 import os
 import sys
+from pkg_resources import resource_string
 
 from wpreddit import config, connection, download, reddit, wallpaper
 
@@ -14,6 +15,17 @@ def run():
         if config.save:
             wallpaper.save_wallpaper()
             sys.exit(0)
+        if config.autostartup:
+            if config.opsys == "Linux":
+                dfile = resource_string(__name__, 'conf_files/linux-autostart.desktop')
+                path = os.path.expanduser("~/.config") + "/autostart/wallaper-reddit.desktop"
+                with open(path, "wb") as f:
+                    f.write(dfile)
+                print("Autostart file created at " + path)
+                sys.exit(0)
+            else:
+                print("Automatic startup creation only currently supported on Linux")
+                sys.exit(1)
         if config.startup:
             connection.wait_for_connection(config.startupattempts, config.startupinterval)
         # make sure you're actually connected to reddit

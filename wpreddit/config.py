@@ -8,6 +8,7 @@ from pkg_resources import resource_string
 # global vars
 verbose = False
 startup = False
+autostartup = False
 force_dl = False
 startupinterval = 0
 startupattempts = 0
@@ -130,6 +131,8 @@ def parse_args():
                         action="store_true")
     parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection",
                         action="store_true")
+    parser.add_argument("--auto-startup", help="runs the program at boot, downloading the top wallpaper",
+                        action="store_true")
     parser.add_argument("--save",
                         help='saves the current wallpaper (does not download a wallpaper)',
                         action="store_true")
@@ -148,6 +151,7 @@ def parse_args():
     global save
     global force_dl
     global startup
+    global autostartup
     global resize
     global settitle
     global randomsub
@@ -157,6 +161,7 @@ def parse_args():
     verbose = args.verbose
     save = args.save
     startup = args.startup
+    autostartup = args.auto_startup
     force_dl = args.force
     if args.resize:
         resize = True

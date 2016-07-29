@@ -13,7 +13,7 @@ def set_wallpaper():
     if config.opsys == "Windows":
         ctypes.windll.user32.SystemParametersInfoW(0x14, 0, config.walldir + "\\wallpaper.bmp", 0x3)
     elif config.opsys == "Darwin":
-        path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
+        path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
         os.system("sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \"update data set value = '" + path + "'\" && killall Dock")
     else:
         linux_wallpaper()
@@ -22,7 +22,7 @@ def set_wallpaper():
 
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
-    path = os.path.expanduser("~/.wallpaper/wallpaper.jpg")
+    path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
     if config.setcmd != '':
         os.system(config.setcmd)
     elif de in ["gnome", "gnome-wayland", "unity", "ubuntu"]:
@@ -35,7 +35,7 @@ def linux_wallpaper():
             if re.search('wallpaper[0-9]+\.jpg', file) is not None:
                 os.remove(config.walldir + "/" + file)
         randint = random.randint(0, 65535)
-        randpath = os.path.expanduser("~/.wallpaper/wallpaper%s.jpg" % randint)
+        randpath = os.path.expanduser(config.walldir + "/wallpaper%s.jpg" % randint)
         shutil.copyfile(path, randpath)
         os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % randpath)
     elif de in ["mate"]:

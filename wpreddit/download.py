@@ -51,9 +51,6 @@ def set_image_title(img, title):
     elif config.titlealign_y == "bottom":
         text_y = font.getsize(title)[1]
         y = img.size[1] - text_y - config.titleoffset_y
-    # shadow = Image.new('RGBA', img.size, (255,255,255,0))
-    # shadowdraw = ImageDraw.Draw(shadow)
-    # shadowdraw.text((x+2, y+2), title, font=font, fill=(255,255,255))
     draw.text((x+2, y+2), title, font=font, fill=(0, 0, 0, 127))
     draw.text((x, y), title, font=font)
     del draw
