@@ -2,11 +2,13 @@ import argparse
 import configparser
 import os
 import platform
+import sys
 from pkg_resources import resource_string
 
 # global vars
 verbose = False
 startup = False
+autostartup = False
 force_dl = False
 startupinterval = 0
 startupattempts = 0
@@ -34,12 +36,12 @@ opsys = platform.system()
 def init_config():
     global walldir
     global confdir
-    if opsys == "Linux":
-        walldir = os.path.expanduser("~/.wallpaper")
-        confdir = os.path.expanduser("~/.config/wallpaper-reddit")
-    else:
+    if opsys == "Windows":
         walldir = os.path.expanduser("~/Wallpaper-Reddit")
         confdir = os.path.expanduser("~/Wallpaper-Reddit/config")
+    else:
+        walldir = os.path.expanduser("~/.wallpaper")
+        confdir = os.path.expanduser("~/.config/wallpaper-reddit")
     if not os.path.exists(walldir):
         os.makedirs(walldir)
         log(walldir + " created")
@@ -58,10 +60,10 @@ def init_config():
         os.makedirs(confdir)
         log(confdir + " created")
     if not os.path.isfile(confdir + '/wallpaper-reddit.conf'):
-        if opsys == 'Linux':
-            cfile = resource_string(__name__, 'conf_files/linux.conf')
-        else:
+        if opsys == 'Windows':
             cfile = resource_string(__name__, 'conf_files/windows.conf')
+        else:
+            cfile = resource_string(__name__, 'conf_files/unix.conf')
         with open(confdir + '/wallpaper-reddit.conf', 'wb') as f:
             f.write(cfile)
     parse_config()
@@ -89,6 +91,10 @@ def parse_config():
     global startupattempts
     global savedir
     global randomsub
+    if config.get('Title Overlay', 'titlegravity', fallback=None) is not None:
+        print("You are using an old (pre v3) configuration file.  Please delete your config file at " + confdir +
+              " and let the program create a new one.")
+        sys.exit(1)
     subs = config.get('Options', 'subs', fallback='earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes')
     subs = [x.strip() for x in subs.split(',')]
     maxlinks = config.getint('Options', 'maxlinks', fallback=20)
@@ -107,10 +113,10 @@ def parse_config():
     startupattempts = config.getint('Startup', 'attempts', fallback=10)
 
     def get_default_savedir():
-        if opsys == 'Linux':
-            return "~/Pictures/Wallpapers"
-        else:
+        if opsys == 'Windows':
             return "~/My Pictures/Wallpapers"
+        else:
+            return "~/Pictures/Wallpapers"
 
     savedir = os.path.expanduser(config.get('Save', 'directory', fallback=get_default_savedir()))
 
@@ -124,6 +130,8 @@ def parse_args():
                         help="forces wallpapers to re-download even if it has the same url as the current wallpaper",
                         action="store_true")
     parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection",
+                        action="store_true")
+    parser.add_argument("--auto-startup", help="runs the program at boot, downloading the top wallpaper",
                         action="store_true")
     parser.add_argument("--save",
                         help='saves the current wallpaper (does not download a wallpaper)',
@@ -143,6 +151,7 @@ def parse_args():
     global save
     global force_dl
     global startup
+    global autostartup
     global resize
     global settitle
     global randomsub
@@ -152,6 +161,7 @@ def parse_args():
     verbose = args.verbose
     save = args.save
     startup = args.startup
+    autostartup = args.auto_startup
     force_dl = args.force
     if args.resize:
         resize = True

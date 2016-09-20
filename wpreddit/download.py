@@ -51,9 +51,6 @@ def set_image_title(img, title):
     elif config.titlealign_y == "bottom":
         text_y = font.getsize(title)[1]
         y = img.size[1] - text_y - config.titleoffset_y
-    # shadow = Image.new('RGBA', img.size, (255,255,255,0))
-    # shadowdraw = ImageDraw.Draw(shadow)
-    # shadowdraw.text((x+2, y+2), title, font=font, fill=(255,255,255))
     draw.text((x+2, y+2), title, font=font, fill=(0, 0, 0, 127))
     draw.text((x, y), title, font=font)
     del draw
@@ -66,7 +63,7 @@ def set_image_title(img, title):
 def save_info(url, title):
     # Reddit escapes the unicode in json, so when the json is downloaded, the info has to be manually re-encoded
     # and have the unicode characters reprocessed
-    title = title.encode('utf-8').decode('unicode-escape')
+    # title = title.encode('utf-8').decode('unicode-escape')
     with open(config.walldir + '/url.txt', 'w') as urlinfo:
         urlinfo.write(url)
     with open(config.walldir + '/title.txt', 'w') as titleinfo:
