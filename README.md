@@ -1,32 +1,35 @@
 # About
-wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 3 has introduced many changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.
+wallpaper-reddit is a Python 3 program that sets your wallpaper to the top image of one or multiple subreddits.  Version 3 has introduced many changes, such as the removal of all external dependencies, automatic DE detection for wallpaper setting, and proper setup using setuptools.  
 
 # Installation
-RPMs for Fedora 23, Fedora 24, Ubuntu 16.04/Linux Mint 18 can be found on the [Releases Page] (https://github.com/markubiak/wallpaper-reddit/releases)
-Users of Ubuntu derivatives <16.04 will have to build from source, as the version of PIL shipped with those versions of Ubuntu is outdated.
+RPMs for Fedora 23, Fedora 24, Ubuntu 16.04/Linux Mint 18 can be found on the [Releases Page] (https://github.com/markubiak/wallpaper-reddit/releases)  
+
+Users of Ubuntu derivatives <16.04 will have to build from source, as the version of PIL shipped with those versions of Ubuntu is outdated.  
+
 Arch users can get the package from the [AUR](https://aur.archlinux.org/packages/wallpaper-reddit-git/)  
 
-From Source:
-1. Install Pillow 3.x or the libraries necessary to compile it from scratch if the distribution you're using does not package it:  
-  - Ubuntu <16.04/Linux Mint 17/ElementaryOS: `sudo apt-get install python3-dev python3-setuptools libjpeg8-dev zlib1g-dev libfreetype6-dev`
-  - Fedora: `sudo dnf install python3-imaging` (installed by default)  
-  - Arch: `sudo pacman -S python-pillow`  
-  - Mac OS X El Capitan: 
-    * `xcode-select --install`
-    * `pip install pillow`
-2. Clone the repository and navigate into the directory with the setup.py file.  
-3. Run `sudo python3 setup.py install`  
+From Source:  
+1.) Install Pillow 3.x or the libraries necessary to compile it from scratch if the distribution you're using does not package it:  
+   - Ubuntu <16.04/Linux Mint 17/ElementaryOS: `sudo apt-get install python3-dev python3-setuptools libjpeg8-dev zlib1g-dev libfreetype6-dev`  
+   - Fedora: `sudo dnf install python3-imaging` (installed by default)  
+   - Arch: `sudo pacman -S python-pillow`  
+   - Mac OS X El Capitan: 
+    * `xcode-select --install`  
+    * `pip install pillow`  
+
+2.) Clone the repository and navigate into the directory with the setup.py file.  
+3.) Run `sudo python3 setup.py install`  
 
 # Usage
-The script is very simple to use.  Simply type:
+The script is very simple to use.  Simply type:  
 
-  `wallpaper-reddit [subreddits]`
+  `wallpaper-reddit [subreddits]`  
   
-If no subreddits are specified, the script will default to the top image from the subs section of the config file.  There are many, many more options, all of which you can see by typing:
+If no subreddits are specified, the script will default to the top image from the subs section of the config file.  There are many, many more options, all of which you can see by typing:  
 
-  `wallpaper-reddit --help`
+  `wallpaper-reddit --help`  
 
-# Configuration
+# Configuration  
 The config file is in `~/.config/wallpaper-reddit`, and will be created automatically.  Currently, the GNOME, XFCE, MATE, Unity, and Cinnamon Desktop Environments should be automatically detected and the program should set the wallpaper without any extra work.  However, due to the varying nature of window managers, it is possible, even likely, that you may have to specify a custom command to set your wallpaper.  The program will prompt you for this if this is the case; the exact command can be researched per desktop environment.  If your desktop environment is not supported, please file an issue so that automatic support can be implemented for others.  
 ### Config Options:  
 - `minwidth` and `minheight` set the minimum dimensions the program will consider a valid candidate for a wallpaper.  If `--resize` is enabled, the script will resize the image to those dimensions before setting the wallpaper.
@@ -50,13 +53,13 @@ If wallpaper-reddit is run with the `--startup` flag, the program will wait on a
 ### Startup Configuration Options
 Options for the startup can only be set in the config file.  They are under the [Startup] section.
 -  `interval` describes the amount of time, in seconds, between wallpaper-reddit's attempts to procure new wallpaper.
- - `attempts` describes the number of attempts that will be made to connect to Reddit. After this number of attempts has failed, wallpaper-reddit will cease to try downloading wallpaper during the current startup.
+ - `attempts` describes the number of attempts that will be made to connect to Reddit. After this number of attempts has failed, wallpaper-reddit will cease to try downloading wallpaper during the current startup.  
 
 # Saving
-If wallpaper-reddit is run with the `--save` flag, no wallpaper will be downloaded.  The current wallpaper will be copied to the save directory, as specified in the config file (default is `~/Pictures/Wallpapers` on Linux, `~/My Pictures/Wallpapers` on Windows), and its title will be put into a titles.txt file inside the same directory.
+If wallpaper-reddit is run with the `--save` flag, no wallpaper will be downloaded.  The current wallpaper will be copied to the save directory, as specified in the config file (default is `~/Pictures/Wallpapers` on Linux, `~/My Pictures/Wallpapers` on Windows), and its title will be put into a titles.txt file inside the same directory.  
 
 # Blacklists
-There is a function to blacklist a certain wallpaper from the script if it is particularly ugly.  Simply run the script with the `--blacklist` flag.  The script will run as usual, but additionally blacklist your current wallpaper.  You'll get a new wallpaper and never see the old one again.
+There is a function to blacklist a certain wallpaper from the script if it is particularly ugly.  Simply run the script with the `--blacklist` flag.  The script will run as usual, but additionally blacklist your current wallpaper.  You'll get a new wallpaper and never see the old one again.  
 
 # External commands and wallpaper info
 Because more information is always better, much more than the wallpaper itself exists in `~/.wallpaper`.
