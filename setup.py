@@ -10,7 +10,7 @@ setup(
         description='A utility that downloads wallpapers from reddit',
         install_requires=['Pillow>=3.0'],
         package_data={
-            'wpreddit': ['fonts/*.otf', 'conf_files/*.conf']
+            'wpreddit': ['fonts/*.otf', 'conf_files/*.conf', 'conf_files/*.desktop']
         },
         entry_points={
             'console_scripts': [

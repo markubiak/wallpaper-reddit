@@ -131,7 +131,7 @@ def parse_args():
                         action="store_true")
     parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection",
                         action="store_true")
-    parser.add_argument("--auto-startup", help="runs the program at boot, downloading the top wallpaper",
+    parser.add_argument("--auto-startup", help="sets the program to automatically run on every login (Linux only)",
                         action="store_true")
     parser.add_argument("--save",
                         help='saves the current wallpaper (does not download a wallpaper)',
