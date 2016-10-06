@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=wallpaper-reddit
+Comment=Downloads and sets the top wallpaper from the news aggregation website Reddit.
+Exec=wallpaper-reddit --startup
+Type=Application
+StartupNotify=true
