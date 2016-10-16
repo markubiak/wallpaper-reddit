@@ -48,9 +48,12 @@ def run():
 # creates and runs the ~/.wallpaper/external.sh script
 def external_script():
     if config.opsys == 'Linux' or config.opsys == 'Darwin':
+        return_value = 0
         if not os.path.isfile(config.walldir + '/external.sh'):
             with open(config.walldir + '/external.sh', 'w') as external:
                 external.write(
                     '# ! /bin/bash\n\n# You can enter custom commands here that will execute after the main program is finished')
-            os.system('chmod +x ' + config.walldir + '/external.sh')
-        os.system('bash ' + config.walldir + '/external.sh')
+            return_value += os.system('chmod +x ' + config.walldir + '/external.sh')
+        return_value += os.system('bash ' + config.walldir + '/external.sh')
+        if return_value != 0:
+            print("external.sh returned a non-zero exit code.  Check for errors.")

@@ -14,7 +14,12 @@ def set_wallpaper():
         ctypes.windll.user32.SystemParametersInfoW(0x14, 0, config.walldir + "\\wallpaper.bmp", 0x3)
     elif config.opsys == "Darwin":
         path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
-        os.system("sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \"update data set value = '" + path + "'\" && killall Dock")
+        return_code = os.system(
+            "sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \"update data set value = '"
+            + path + "'\" && killall Dock")
+        if return_code != 0:
+            print("Setting wallpaper failed.  Ensure all dependencies listen in the README are installed.")
+            sys.exit(1)
     else:
         linux_wallpaper()
     print("wallpaper set command was run")
@@ -23,12 +28,17 @@ def set_wallpaper():
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
     path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
+    return_code = 0
     if config.setcmd != '':
-        os.system(config.setcmd)
-    elif de in ["gnome", "gnome-wayland", "unity", "ubuntu"]:
-        os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
+        return_code = os.system(config.setcmd)
+        if return_code != 0:
+            print("Custom wallpaper command returned a non-zero exit code. "
+                  "Please check your custom command for errors.")
+            sys.exit(1)
+    elif de in ["gnome", "gnome-wayland", "unity", "ubuntu", "budgie-desktop"]:
+        return_code = os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
     elif de in ["cinnamon"]:
-        os.system("gsettings set org.cinnamon.desktop.background picture-uri file://%s" % path)
+        return_code = os.system("gsettings set org.cinnamon.desktop.background picture-uri file://%s" % path)
     elif de in ["pantheon"]:
         files = os.listdir(config.walldir)
         for file in files:
@@ -37,25 +47,24 @@ def linux_wallpaper():
         randint = random.randint(0, 65535)
         randpath = os.path.expanduser(config.walldir + "/wallpaper%s.jpg" % randint)
         shutil.copyfile(path, randpath)
-        os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % randpath)
+        return_code = os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % randpath)
     elif de in ["mate"]:
-        os.system("gsettings set org.mate.background picture-filename '%s'" % path)
+        return_code = os.system("gsettings set org.mate.background picture-filename '%s'" % path)
     elif de in ["xfce", "xubuntu"]:
         p = Popen(['xfconf-query', '-c', 'xfce4-desktop', '-p', '/backdrop', '-l'], stdout=PIPE)
         props = p.stdout.read().decode("utf-8").split('\n')
         for prop in props:
             if "last-image" in prop or "image-path" in prop:
-                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s ''")
-                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s '%s'" % path)
+                return_code += os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s ''")
+                return_code += os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s '%s'" % path)
             if "image-show" in prop:
-                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s 'true'")
-    else:
-        if config.setcmd == '':
-            print("Your DE could not be detected to set the wallpaper."
-                  "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit")
-            sys.exit(1)
-        else:
-            os.system(config.setcmd)
+                return_code = os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s 'true'")
+    elif config.setcmd == '':
+        print("Your DE could not be detected to set the wallpaper. "
+              "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit")
+        sys.exit(1)
+    if return_code != 0:
+        print("Command to set wallpaper returned non-zero exit code.  Please file a bug.")
 
 
 # saves the wallpaper in the save directory from the config
