@@ -49,6 +49,8 @@ def linux_wallpaper():
                 os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s '%s'" % path)
             if "image-show" in prop:
                 os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s 'true'")
+    elif de in ["lubuntu", "Lubuntu"]:
+        os.system("pcmanfm -w %s" % path)
     else:
         if config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper."
