@@ -64,6 +64,8 @@ def linux_wallpaper():
                     check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s" "'%s'" % path])
                 if "image-show" in prop:
                     check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s", "'true'"])
+        elif de in ["lubuntu", "Lubuntu"]:
+            check_call(["pcmanfm", "-w", "%s" % path])
         elif config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper. "
                   "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit. "
