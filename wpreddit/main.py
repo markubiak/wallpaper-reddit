@@ -19,8 +19,11 @@ def run():
         if config.autostartup:
             if config.opsys == "Linux":
                 dfile = resource_string(__name__, 'conf_files/linux-autostart.desktop')
-                path = os.path.expanduser("~/.config") + "/autostart/wallpaper-reddit.desktop"
-                with open(path, "wb") as f:
+                path = os.path.expanduser("~/.config") + "/autostart"
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                    config.log(path + " created")
+                with open(path + "/wallpaper-reddit.desktop", "wb") as f:
                     f.write(dfile)
                 print("Autostart file created at " + path)
                 sys.exit(0)
