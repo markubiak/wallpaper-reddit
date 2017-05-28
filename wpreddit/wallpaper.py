@@ -4,7 +4,7 @@ import random
 import re
 import shutil
 import sys
-from subprocess import Popen, PIPE
+from subprocess import check_call, check_output, CalledProcessError
 
 from wpreddit import config
 
@@ -14,7 +14,13 @@ def set_wallpaper():
         ctypes.windll.user32.SystemParametersInfoW(0x14, 0, config.walldir + "\\wallpaper.bmp", 0x3)
     elif config.opsys == "Darwin":
         path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
-        os.system("sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db \"update data set value = '" + path + "'\" && killall Dock")
+        try:
+            check_call(["sqlite3", "~/Library/Application Support/Dock/desktoppicture.db", "\"update",
+                                   "data", "set", "value", "=", "'%s'\"" % path])
+            check_call(["killall", "dock"])
+        except CalledProcessError or FileNotFoundError:
+            print("Setting wallpaper failed.  Ensure all dependencies listen in the README are installed.")
+            sys.exit(1)
     else:
         linux_wallpaper()
     print("wallpaper set command was run")
@@ -23,41 +29,52 @@ def set_wallpaper():
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
     path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
-    if config.setcmd != '':
-        os.system(config.setcmd)
-    elif de in ["gnome", "gnome-wayland", "unity", "ubuntu", "budgie-desktop"]:
-        os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % path)
-    elif de in ["cinnamon"]:
-        os.system("gsettings set org.cinnamon.desktop.background picture-uri file://%s" % path)
-    elif de in ["pantheon"]:
-        files = os.listdir(config.walldir)
-        for file in files:
-            if re.search('wallpaper[0-9]+\.jpg', file) is not None:
-                os.remove(config.walldir + "/" + file)
-        randint = random.randint(0, 65535)
-        randpath = os.path.expanduser(config.walldir + "/wallpaper%s.jpg" % randint)
-        shutil.copyfile(path, randpath)
-        os.system("gsettings set org.gnome.desktop.background picture-uri file://%s" % randpath)
-    elif de in ["mate"]:
-        os.system("gsettings set org.mate.background picture-filename '%s'" % path)
-    elif de in ["xfce", "xubuntu"]:
-        p = Popen(['xfconf-query', '-c', 'xfce4-desktop', '-p', '/backdrop', '-l'], stdout=PIPE)
-        props = p.stdout.read().decode("utf-8").split('\n')
-        for prop in props:
-            if "last-image" in prop or "image-path" in prop:
-                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s ''")
-                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s '%s'" % path)
-            if "image-show" in prop:
-                os.system("xfconf-query -c xfce4-desktop -p " + prop + " -s 'true'")
-    elif de in ["lubuntu", "Lubuntu"]:
-        os.system("pcmanfm -w %s" % path)
-    else:
-        if config.setcmd == '':
-            print("Your DE could not be detected to set the wallpaper."
-                  "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit")
+    try:
+        if config.setcmd != '':
+            check_call(config.setcmd.split(" "))
+        elif de in ["gnome", "gnome-xorg", "gnome-wayland", "unity", "ubuntu", "budgie-desktop"]:
+            check_call(["gsettings", "set", "org.gnome.desktop.background", "picture-uri",
+                                   "file://%s" % path])
+        elif de in ["cinnamon"]:
+            check_call(["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri",
+                                   "file://%s" % path])
+        elif de in ["pantheon"]:
+            # Some disgusting hacks so that Pantheon will update the wallpaper
+            # If the filename isn't changed, the wallpaper doesn't either
+            files = os.listdir(config.walldir)
+            for file in files:
+                if re.search('wallpaper[0-9]+\.jpg', file) is not None:
+                    os.remove(config.walldir + "/" + file)
+            randint = random.randint(0, 65535)
+            randpath = os.path.expanduser(config.walldir + "/wallpaper%s.jpg" % randint)
+            shutil.copyfile(path, randpath)
+            check_call(["gsettings", "set", "org.gnome.desktop.background", "picture-uri",
+                                   "file://%s" % randpath])
+        elif de in ["mate"]:
+            check_call(["gsettings", "set", "org.mate.background", "picture-filename",
+                                   "'%s'" % path])
+        elif de in ["xfce", "xubuntu"]:
+            # Light workaround here, just need to toggle the wallpaper from null to the original filename
+            # xfconf props aren't 100% consistent so light workaround for that too
+            props = check_output(['xfconf-query', '-c', 'xfce4-desktop', '-p', '/backdrop', '-l'])\
+                    .decode("utf-8").split('\n')
+            for prop in props:
+                if "last-image" in prop or "image-path" in prop:
+                    check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s", "''"])
+                    check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s" "'%s'" % path])
+                if "image-show" in prop:
+                    check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s", "'true'"])
+        elif de in ["lubuntu", "Lubuntu"]:
+            check_call(["pcmanfm", "-w", "%s" % path])
+        elif config.setcmd == '':
+            print("Your DE could not be detected to set the wallpaper. "
+                  "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit. "
+                  "When you get it working, please file an issue.")
             sys.exit(1)
-        else:
-            os.system(config.setcmd)
+    except CalledProcessError or FileNotFoundError:
+        print("Command to set wallpaper returned non-zero exit code.  Please file an issue or check your custom "
+              "command if you have set one in the configuration file.")
+        sys.exit(1)
 
 
 # saves the wallpaper in the save directory from the config
