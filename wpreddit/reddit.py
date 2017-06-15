@@ -10,7 +10,7 @@ from wpreddit import config, connection
 
 
 # in - string[] - list of subreddits to get links from
-# out - string[], string[] - a list of links from the subreddits and their respective titles
+# out - string[], string[], string[] - a list of links from the subreddits and their respective titles and permalinks
 # takes in subreddits, converts them to a reddit json url, and then picks out urls and their titles
 def get_links():
     print("searching for valid images...")
@@ -36,10 +36,12 @@ def get_links():
     response.close()
     links = []
     titles = []
+    permalinks = []
     for i in data["data"]["children"]:
         links.append(i["data"]["url"])
         titles.append(i["data"]["title"])
-    return links, titles
+        permalinks.append("http://reddit.com" + i["data"]["permalink"])
+    return links, titles, permalinks
 
 
 # in - string[] - list of links to check
