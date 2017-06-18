@@ -38,11 +38,13 @@ def run():
             sys.exit(1)
         links = reddit.get_links()
         titles = links[1]
+        permalinks = links[2]
         valid = reddit.choose_valid(links[0])
         valid_url = valid[0]
         title = titles[valid[1]]
+        permalink = permalinks[valid[1]]
         download.download_image(valid_url, title)
-        download.save_info(valid_url, title)
+        download.save_info(valid_url, title, permalink)
         wallpaper.set_wallpaper()
         external_script()
     except KeyboardInterrupt:
