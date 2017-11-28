@@ -22,9 +22,10 @@ def download_image(url, title):
         if config.settitle:
             img = set_image_title(img, title)
         if config.opsys == "Windows":
-            img.save(config.walldir + '\\wallpaper.bmp', "BMP")
+            img.convert('RGB').save(config.walldir + '\\wallpaper.bmp', "BMP")
         else:
-            img.save(config.walldir + '/wallpaper.jpg', "JPEG")
+            img.convert('RGB').save(config.walldir + '/wallpaper.jpg', "JPEG")
+
     except IOError:
         print("Error saving image!")
         sys.exit(1)
