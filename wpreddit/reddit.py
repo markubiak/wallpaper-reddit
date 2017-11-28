@@ -49,10 +49,18 @@ def get_links():
 # takes in a list of links and attempts to find the first one that is a direct image link,
 # is within the proper dimensions, and is not blacklisted
 def choose_valid(links):
+    random.seed()
+    
     if len(links) == 0:
         print("No links were returned from any of those subreddits. Are they valid?")
         sys.exit(1)
-    for i, origlink in enumerate(links):
+    
+    nIter = 0
+    #for i, origlink in enumerate(links):
+    while (nIter < len(links)):
+        nIter += 1
+        i = random.randint(0, len(links))
+        origlink = links[i]
         config.log("checking link # {0}: {1}".format(i, origlink))
         link = origlink
         if not (link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg'):
@@ -68,13 +76,18 @@ def choose_valid(links):
             with open(config.walldir + '/url.txt', 'r') as f:
                 currlink = f.read()
                 if currlink == link:
-                    print("current wallpaper is the most recent, will not re-download the same wallpaper.")
-                    sys.exit(0)
+                    if (config.lottery == False):
+                        print("current wallpaper is the most recent, will not re-download the same wallpaper.")
+                        sys.exit(0)
+                    else:
+                        return False
                 else:
                     return True
+            return False
 
         if config.force_dl or not (os.path.isfile(config.walldir + '/url.txt')) or check_same_url(link):
             return link, i
+            
     print("No valid links were found from any of those subreddits.  Try increasing the maxlink parameter.")
     sys.exit(0)
 
@@ -102,6 +115,7 @@ def check_dimensions(url):
 # out: the name of a random subreddit
 # will pick a random sub from a list of subreddits
 def pick_random(subreddits):
+    random.seed()
     rand = random.randint(0, len(subreddits) - 1)
     return subreddits[rand]
 
@@ -129,3 +143,4 @@ def blacklist_current():
         url = urlfile.read()
     with open(config.walldir + '/blacklist.txt', 'a') as blacklist:
         blacklist.write(url + '\n')
+
