@@ -49,17 +49,14 @@ def get_links():
 # takes in a list of links and attempts to find the first one that is a direct image link,
 # is within the proper dimensions, and is not blacklisted
 def choose_valid(links):
-    random.seed()
-    
     if len(links) == 0:
         print("No links were returned from any of those subreddits. Are they valid?")
         sys.exit(1)
     
-    nIter = 0
-    #for i, origlink in enumerate(links):
-    while (nIter < len(links)):
-        nIter += 1
-        i = random.randint(0, len(links))
+    if (config.lottery == True):
+        random.shuffle(links)
+    
+    for i, origlink in enumerate(links):
         origlink = links[i]
         config.log("checking link # {0}: {1}".format(i, origlink))
         link = origlink
@@ -143,4 +140,3 @@ def blacklist_current():
         url = urlfile.read()
     with open(config.walldir + '/blacklist.txt', 'a') as blacklist:
         blacklist.write(url + '\n')
-
