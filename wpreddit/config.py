@@ -91,6 +91,7 @@ def parse_config():
     global startupattempts
     global savedir
     global randomsub
+    global lottery
     if config.get('Title Overlay', 'titlegravity', fallback=None) is not None:
         print("You are using an old (pre v3) configuration file.  Please delete your config file at " + confdir +
               " and let the program create a new one.")
@@ -102,6 +103,7 @@ def parse_config():
     minheight = config.getint('Options', 'minheight', fallback=1080)
     resize = config.getboolean('Options', 'resize', fallback=True)
     randomsub = config.getboolean('Options', 'random', fallback=False)
+    lottery = config.getboolean('Options', 'lottery', fallback=False)
     setcmd = config.get('SetCommand', 'setcommand', fallback='')
     settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
     titlesize = config.getint('Title Overlay', 'titlesize', fallback=24)
@@ -145,6 +147,8 @@ def parse_args():
                         help="will pick a random subreddit from the ones provided instead of turning them into a multireddit",
                         action="store_true")
     parser.add_argument("--settitle", help="write title over the image", action="store_true")
+    parser.add_argument("--lottery", help="select a random image from a subreddit instead of the newest", action="store_true")
+    
     args = parser.parse_args()
     global subs
     global verbose
@@ -156,6 +160,7 @@ def parse_args():
     global settitle
     global randomsub
     global blacklistcurrent
+    global lottery
     if not args.subreddits == []:
         subs = args.subreddits
     verbose = args.verbose
@@ -171,6 +176,8 @@ def parse_args():
         randomsub = True
     if args.blacklist:
         blacklistcurrent = True
+    if args.lottery:
+        lottery = True
 
 
 # in - string - messages to print
@@ -178,3 +185,4 @@ def parse_args():
 def log(info):
     if verbose:
         print(info)
+

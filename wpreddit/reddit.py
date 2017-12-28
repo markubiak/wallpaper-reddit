@@ -10,7 +10,7 @@ from wpreddit import config, connection
 
 
 # in - string[] - list of subreddits to get links from
-# out - string[], string[], string[] - a list of links from the subreddits and their respective titles and permalinks
+# out - [string, string, string][] - a list of links from the subreddits and their respective titles and permalinks
 # takes in subreddits, converts them to a reddit json url, and then picks out urls and their titles
 def get_links():
     print("searching for valid images...")
@@ -35,17 +35,15 @@ def get_links():
         sys.exit(0)
     response.close()
     links = []
-    titles = []
-    permalinks = []
     for i in data["data"]["children"]:
-        links.append(i["data"]["url"])
-        titles.append(i["data"]["title"])
-        permalinks.append("http://reddit.com" + i["data"]["permalink"])
-    return links, titles, permalinks
+        links.append([i["data"]["url"],
+                      i["data"]["title"],
+                      "http://reddit.com" + i["data"]["permalink"]])
+    return links
 
 
-# in - string[] - list of links to check
-# out - string, int - first link to match all criteria and its index (for matching it with a title)
+# in - [string, string, string][] - list of links to check
+# out - [string, string, string] - first link to match all criteria with title and permalink
 # takes in a list of links and attempts to find the first one that is a direct image link,
 # is within the proper dimensions, and is not blacklisted
 def choose_valid(links):
@@ -53,8 +51,8 @@ def choose_valid(links):
         print("No links were returned from any of those subreddits. Are they valid?")
         sys.exit(1)
     for i, origlink in enumerate(links):
-        config.log("checking link # {0}: {1}".format(i, origlink))
-        link = origlink
+        link = origlink[0]
+        config.log("checking link # {0}: {1}".format(i, link))
         if not (link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg'):
             if re.search('(imgur\.com)(?!/a/)', link):
                 link = link.replace("/gallery", "")
@@ -74,7 +72,7 @@ def choose_valid(links):
                     return True
 
         if config.force_dl or not (os.path.isfile(config.walldir + '/url.txt')) or check_same_url(link):
-            return link, i
+            return [link, origlink[1], origlink[2]]
     print("No valid links were found from any of those subreddits.  Try increasing the maxlink parameter.")
     sys.exit(0)
 
