@@ -58,19 +58,19 @@ def set_image_title(img, title):
     return img
 
 
-# in - string, string, - a url and a title
+# in - [string, string, string] - url, title, and permalink
 # saves the url of the image to ~/.wallpaper/url.txt, the title of the image to ~/.wallpaper/title.txt,
 # and the permalink to ~/.wallpaper/permalink.txt just for reference
-def save_info(url, title, permalink):
+def save_info(link):
     # Reddit escapes the unicode in json, so when the json is downloaded, the info has to be manually re-encoded
     # and have the unicode characters reprocessed
     # title = title.encode('utf-8').decode('unicode-escape')
     with open(config.walldir + '/url.txt', 'w') as urlinfo:
-        urlinfo.write(url)
+        urlinfo.write(link[0])
     with open(config.walldir + '/title.txt', 'w') as titleinfo:
-        titleinfo.write(remove_tags(title))
+        titleinfo.write(remove_tags(link[1]))
     with open(config.walldir + '/permalink.txt', 'w') as linkinfo:
-        linkinfo.write(permalink)
+        linkinfo.write(link[2])
 
 
 # in - string - title of the picture

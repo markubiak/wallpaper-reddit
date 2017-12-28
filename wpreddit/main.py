@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 from pkg_resources import resource_string
 from subprocess import check_call, CalledProcessError
@@ -37,14 +38,11 @@ def run():
             print("ERROR: You do not appear to be connected to Reddit. Exiting")
             sys.exit(1)
         links = reddit.get_links()
-        titles = links[1]
-        permalinks = links[2]
-        valid = reddit.choose_valid(links[0])
-        valid_url = valid[0]
-        title = titles[valid[1]]
-        permalink = permalinks[valid[1]]
-        download.download_image(valid_url, title)
-        download.save_info(valid_url, title, permalink)
+        if (config.lottery == True):
+            random.shuffle(links)
+        valid = reddit.choose_valid(links)
+        download.download_image(valid[0], valid[1])
+        download.save_info(valid)
         wallpaper.set_wallpaper()
         external_script()
     except KeyboardInterrupt:
