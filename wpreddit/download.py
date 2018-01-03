@@ -15,16 +15,16 @@ def download_image(url, title):
     f = request.urlopen(uaurl)
     print("downloading " + url)
     try:
-        img = Image.open(f)
+        img = Image.open(f).convert('RGB')
         if config.resize:
             config.log("resizing the downloaded wallpaper")
             img = ImageOps.fit(img, (config.minwidth, config.minheight), Image.ANTIALIAS)
         if config.settitle:
             img = set_image_title(img, title)
         if config.opsys == "Windows":
-            img.convert('RGB').save(config.walldir + '\\wallpaper.bmp', "BMP")
+            img.save(config.walldir + '\\wallpaper.bmp', "BMP")
         else:
-            img.convert('RGB').save(config.walldir + '/wallpaper.jpg', "JPEG")
+            img.save(config.walldir + '/wallpaper.jpg', "JPEG")
 
     except IOError:
         print("Error saving image!")
