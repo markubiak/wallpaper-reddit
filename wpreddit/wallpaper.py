@@ -26,19 +26,24 @@ def set_wallpaper():
     print("wallpaper set command was run")
 
 
+def check_de(current_de, list_of_de):
+    """Check if any of the strings in ``list_of_de`` is contained in ``current_de``."""
+    return any([de in current_de for de in list_of_de])
+
+
 def linux_wallpaper():
     de = os.environ.get('DESKTOP_SESSION')
     path = os.path.expanduser(config.walldir + "/wallpaper.jpg")
     try:
         if config.setcmd != '':
             check_call(config.setcmd.split(" "))
-        elif de in ["gnome", "gnome-xorg", "gnome-wayland", "unity", "ubuntu", "budgie-desktop"]:
+        elif check_de(de, ["gnome", "gnome-xorg", "gnome-wayland", "unity", "ubuntu", "budgie-desktop"]):
             check_call(["gsettings", "set", "org.gnome.desktop.background", "picture-uri",
                                    "file://%s" % path])
-        elif de in ["cinnamon"]:
+        elif check_de(de, ["cinnamon"]):
             check_call(["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri",
                                    "file://%s" % path])
-        elif de in ["pantheon"]:
+        elif check_de(de, ["pantheon"]):
             # Some disgusting hacks so that Pantheon will update the wallpaper
             # If the filename isn't changed, the wallpaper doesn't either
             files = os.listdir(config.walldir)
@@ -50,10 +55,10 @@ def linux_wallpaper():
             shutil.copyfile(path, randpath)
             check_call(["gsettings", "set", "org.gnome.desktop.background", "picture-uri",
                                    "file://%s" % randpath])
-        elif de in ["mate"]:
+        elif check_de(de, ["mate"]):
             check_call(["gsettings", "set", "org.mate.background", "picture-filename",
                                    "'%s'" % path])
-        elif de in ["xfce", "xubuntu"]:
+        elif check_de(de, ["xfce", "xubuntu"]):
             # Light workaround here, just need to toggle the wallpaper from null to the original filename
             # xfconf props aren't 100% consistent so light workaround for that too
             props = check_output(['xfconf-query', '-c', 'xfce4-desktop', '-p', '/backdrop', '-l'])\
@@ -64,7 +69,7 @@ def linux_wallpaper():
                     check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s" "'%s'" % path])
                 if "image-show" in prop:
                     check_call(["xfconf-query", "-c", "xfce4-desktop", "-p", prop, "-s", "'true'"])
-        elif de in ["lubuntu", "Lubuntu"]:
+        elif check_de(de, ["lubuntu", "Lubuntu"]):
             check_call(["pcmanfm", "-w", "%s" % path])
         elif config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper. "
