@@ -141,7 +141,7 @@ def parse_args():
     parser.add_argument("--resize", help="resizes the image to the height and width specified in the config after "
                                          "wallpaper is set.  Enabled by default in the configuration file,",
                         action="store_true")
-    parser.add_argument("--blacklist", help="blacklists the current wallpaper and downloads a new wallpaper",
+    parser.add_argument("-b", "--blacklist", help="blacklists the current wallpaper and downloads a new wallpaper",
                         action="store_true")
     parser.add_argument("--random",
                         help="will pick a random subreddit from the ones provided instead of turning them into a multireddit",
