@@ -32,7 +32,7 @@ def linux_wallpaper():
     try:
         if config.setcmd != '':
             check_call(config.setcmd.split(" "))
-        elif de in ["gnome", "gnome-xorg", "gnome-wayland", "unity", "ubuntu", "budgie-desktop"]:
+        elif de in ["gnome", "gnome-xorg", "gnome-wayland", "unity", "ubuntu", "ubuntu-xorg", "budgie-desktop"]:
             check_call(["gsettings", "set", "org.gnome.desktop.background", "picture-uri",
                                    "file://%s" % path])
         elif de in ["cinnamon"]:
