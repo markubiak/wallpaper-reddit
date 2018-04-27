@@ -20,7 +20,7 @@ def get_links():
         parsedsubs = config.subs[0]
         for sub in config.subs[1:]:
             parsedsubs = parsedsubs + '+' + sub
-    url = "http://www.reddit.com/r/" + parsedsubs + ".json?limit=" + str(config.maxlinks)
+    url = "http://www.reddit.com/r/" + parsedsubs + "/" + config.sortby + ".json?limit=" + str(config.maxlinks)
     config.log("Grabbing json file " + url)
     uaurl = request.Request(url, headers={
         'User-Agent': 'wallpaper-reddit python script, github.com/markubiak/wallpaper-reddit'})
