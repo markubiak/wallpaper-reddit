@@ -16,6 +16,7 @@ save = False
 subs = []
 minwidth = 0
 minheight = 0
+minratio = 0.0
 titlesize = 0
 titlealign_x = ""
 titlealign_y = ""
@@ -80,6 +81,7 @@ def parse_config():
     global maxlinks
     global minheight
     global minwidth
+    global minratio
     global settitle
     global titlesize
     global titlealign_x
@@ -103,6 +105,7 @@ def parse_config():
     maxlinks = config.getint('Options', 'maxlinks', fallback=20)
     minwidth = config.getint('Options', 'minwidth', fallback=1920)
     minheight = config.getint('Options', 'minheight', fallback=1080)
+    minratio = config.getfloat('Options', 'minratio', fallback=0.0)
     resize = config.getboolean('Options', 'resize', fallback=True)
     randomsub = config.getboolean('Options', 'random', fallback=False)
     lottery = config.getboolean('Options', 'lottery', fallback=False)

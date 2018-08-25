@@ -33,6 +33,7 @@ If no subreddits are specified, the script will default to the top image from th
 The config file is in `~/.config/wallpaper-reddit`, and will be created automatically.  Currently, the GNOME, XFCE, MATE, Unity, and Cinnamon Desktop Environments should be automatically detected and the program should set the wallpaper without any extra work.  However, due to the varying nature of window managers, it is possible, even likely, that you may have to specify a custom command to set your wallpaper.  The program will prompt you for this if this is the case; the exact command can be researched per desktop environment.  If your desktop environment is not supported, please file an issue so that automatic support can be implemented for others.  
 ### Config Options:  
 - `minwidth` and `minheight` set the minimum dimensions the program will consider a valid candidate for a wallpaper.  If `--resize` is enabled, the script will resize the image to those dimensions before setting the wallpaper.
+- `minratio` is the minimal aspect ratio of the image. It is a float value of width/height of the image, for example 1.6 for 16:9 image.
 - `maxlinks` is the maximum number of links the script will go through before giving up.
 - `resize` does the same thing as the `--resize` flag.  It is enabled by default.
 - `random` does the same thing as the `--random` flag.
