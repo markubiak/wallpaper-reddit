@@ -73,4 +73,4 @@ Because more information is always better, much more than the wallpaper itself e
 - `external.sh` is a bash script that is run at the end of every execution of the script (Linux only).  Any extra commands to deal with the wallpaper can be safely placed in this bash script.  I personally have mine darken my xfce4-panel if the wallpaper is too bright at the top, and set the wallpaper as my SLiM/xscreensaver background.
 
 ## Contact
-If there is an issue with the program, please file a GitHub issue.  If you need more specific help troubleshooting a specific desktop or have an issue that isn't worthy of GitHub, feel free to reach out to me on Reddit: [/u/wallpaper-reddit](https://www.reddit.com/u/wallpaper-reddit)
+If there is an issue with the program, please file a GitHub issue.  If you need more specific help troubleshooting a specific desktop or have an issue that isn't worthy of GitHub, feel free to reach out to me via email: mkubiak.dev at gmail dot com
