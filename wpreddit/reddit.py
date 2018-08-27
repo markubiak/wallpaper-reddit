@@ -88,9 +88,10 @@ def check_dimensions(url):
     try:
         with Image.open(resp) as img:
             dimensions = img.size
-            if dimensions[0] >= config.minwidth and dimensions[1] >= config.minheight:
-                config.log("Size checks out")
-                return True
+            if (dimensions[0] / dimensions[1]) >= config.minratio:
+                if dimensions[0] >= config.minwidth and dimensions[1] >= config.minheight:
+                    config.log("Size checks out")
+                    return True
     except IOError:
         config.log("Image dimensions could not be read")
     return False
