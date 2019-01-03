@@ -19,6 +19,9 @@ def download_image(url, title):
         if config.resize:
             config.log("resizing the downloaded wallpaper")
             img = ImageOps.fit(img, (config.minwidth, config.minheight), Image.ANTIALIAS)
+        if img.mode == "RGBA":
+            config.log("removing alpha layer")
+            img = pure_pil_alpha_to_color_v2(img)
         if config.settitle:
             img = set_image_title(img, title)
         if config.opsys == "Windows":
@@ -78,3 +81,15 @@ def save_info(link):
 # removes the [tags] throughout the image
 def remove_tags(str):
     return re.sub(' +', ' ', re.sub("[\[\(\<].*?[\]\)\>]", "", str)).strip()
+
+# in - PIL RGBA Image object - image with alpha channel
+# in - Tuple r, g, b (default 255, 255, 255) - colour of the background \
+# to paste the img on top of.
+# Alpha composite an RGBA Image with a specified color.
+# Source: http://stackoverflow.com/a/9459208/284318
+def pure_pil_alpha_to_color_v2(image, color=(255, 255, 255)):
+    image.load()  # needed for split()
+    background = Image.new('RGB', image.size, color)
+    background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
+    return background
+
