@@ -38,15 +38,36 @@ opsys = platform.system()
 def init_config():
     global walldir
     global confdir
-    if opsys == "Windows":
-        walldir = os.path.expanduser("~/Wallpaper-Reddit")
-        confdir = os.path.expanduser("~/Wallpaper-Reddit/config")
+
+    # Get the full path of the directory per platform
+    if opsys == "Linux":
+        xdg_config = os.getenv('XDG_CONFIG_HOME')
+        xdg_data = os.getenv('XDG_DATA_HOME')
+        if xdg_config is not None:
+            confdir = os.path.expanduser(xdg_config + "/wallpaper-reddit")
+        else:
+            confdir = os.path.expanduser("~/.config/wallpaper-reddit")
+        if xdg_data is not None:
+            walldir =  os.path.expanduser(xdg_data + "/wallpaper-reddit")
+        else:
+            walldir = os.path.expanduser("~/.local/share/wallpaper-reddit")
+    elif opsys == "Windows":
+        appdata = os.getenv("APPDATA")
+        walldir = os.path.expanduser(appdata + "/wallpaper-reddit/data")
+        confdir = os.path.expanduser(appdata + "/wallpaper-reddit/config")
     else:
-        walldir = os.path.expanduser("~/.wallpaper")
-        confdir = os.path.expanduser("~/.config/wallpaper-reddit")
+        walldir = os.path.expanduser("~/Library/Application Support/wallpaper-reddit")
+        confdir = os.path.expanduser("~/Library/Preferences/wallpaper-reddit")
+
+    # Make the paths if they are nonexistent
     if not os.path.exists(walldir):
         os.makedirs(walldir)
         log(walldir + " created")
+    if not os.path.exists(confdir):
+        os.makedirs(confdir)
+        log(confdir + " created")
+
+    # Create empty versions of specific files if necessary
     if not os.path.exists(walldir + '/blacklist.txt'):
         with open(walldir + '/blacklist.txt', 'w') as blacklist:
             blacklist.write('')
@@ -58,9 +79,6 @@ def init_config():
     if not os.path.exists(walldir + '/fonts/Cantarell-Regular.otf'):
         with open(walldir + '/fonts/Cantarell-Regular.otf', 'wb') as font:
             font.write(resource_string(__name__, 'fonts/Cantarell-Regular.otf'))
-    if not os.path.exists(confdir):
-        os.makedirs(confdir)
-        log(confdir + " created")
     if not os.path.isfile(confdir + '/wallpaper-reddit.conf'):
         if opsys == 'Windows':
             cfile = resource_string(__name__, 'conf_files/windows.conf')
@@ -68,15 +86,15 @@ def init_config():
             cfile = resource_string(__name__, 'conf_files/unix.conf')
         with open(confdir + '/wallpaper-reddit.conf', 'wb') as f:
             f.write(cfile)
+
+    # Get the configuration, start with cfg files and use args as overrides
     parse_config()
     parse_args()
     log("config and args parsed")
 
-
-# reads the configuration at ~/.config/wallpaper-reddit
+# reads the configuration file
 def parse_config():
-    config = configparser.ConfigParser()
-    config.read(confdir + '/wallpaper-reddit.conf')
+    # options to change
     global subs
     global maxlinks
     global minheight
@@ -96,37 +114,48 @@ def parse_config():
     global randomsub
     global lottery
     global sortby
-    if config.get('Title Overlay', 'titlegravity', fallback=None) is not None:
-        print("You are using an old (pre v3) configuration file.  Please delete your config file at " + confdir +
+
+    # read the config and check the version
+    config = configparser.ConfigParser()
+    config.read(confdir + '/wallpaper-reddit.conf')
+    if config.get('miscellaneous', 'version', fallback=0) is not 4:
+        print("You are using an old configuration file.  Please delete your config file in " + confdir +
               " and let the program create a new one.")
         sys.exit(1)
-    subs = config.get('Options', 'subs', fallback='earthporn,spaceporn,skyporn,technologyporn,imaginarystarscapes')
+
+    # core
+    subs = config.get('core', 'subs', fallback='earthporn,spaceporn,skyporn,imaginarystarscapes')
     subs = [x.strip() for x in subs.split(',')]
-    maxlinks = config.getint('Options', 'maxlinks', fallback=20)
-    minwidth = config.getint('Options', 'minwidth', fallback=1920)
-    minheight = config.getint('Options', 'minheight', fallback=1080)
-    minratio = config.getfloat('Options', 'minratio', fallback=0.0)
-    resize = config.getboolean('Options', 'resize', fallback=True)
-    randomsub = config.getboolean('Options', 'random', fallback=False)
-    lottery = config.getboolean('Options', 'lottery', fallback=False)
-    sortby = config.get('Options', 'sortby', fallback="hot")
-    setcmd = config.get('SetCommand', 'setcommand', fallback='')
+    minwidth = config.getint('core', 'minwidth', fallback=1920)
+    minheight = config.getint('core', 'minheight', fallback=1080)
+    minratio = config.getfloat('core', 'minratio', fallback=0.0)
+    resize = config.getboolean('core', 'resize', fallback=True)
+    maxlinks = config.getint('core', 'maxlinks', fallback=20)
+    setcmd = config.get('core', 'setcommand', fallback='')
+
+    # extra
+    randomsub = config.getboolean('extra', 'random', fallback=False)
+    lottery = config.getboolean('extra', 'lottery', fallback=False)
+    sortby = config.get('extra', 'sortby', fallback="hot")
+
+    # title overlay
     settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
     titlesize = config.getint('Title Overlay', 'titlesize', fallback=24)
     titlealign_x = config.get('Title Overlay', 'titlealignx', fallback='right').lower()
     titlealign_y = config.get('Title Overlay', 'titlealigny', fallback='top').lower()
     titleoffset_x = config.getint('Title Overlay', 'titleoffsetx', fallback=5)
     titleoffset_y = config.getint('Title Overlay', 'titleoffsety', fallback=5)
+
+    # startup
     startupinterval = config.getint('Startup', 'interval', fallback=3)
     startupattempts = config.getint('Startup', 'attempts', fallback=10)
 
-    def get_default_savedir():
-        if opsys == 'Windows':
-            return "~/My Pictures/Wallpapers"
-        else:
-            return "~/Pictures/Wallpapers"
-
-    savedir = os.path.expanduser(config.get('Save', 'directory', fallback=get_default_savedir()))
+    # save
+    if opsys == 'Windows':
+        default_savedir = "~/My Pictures/Wallpapers"
+    else:
+        default_savedir = "~/Pictures/Wallpapers"
+    savedir = os.path.expanduser(config.get('Save', 'directory', fallback=default_savedir))
 
 
 # parses command-line arguments and stores them to proper global variables
@@ -189,10 +218,3 @@ def parse_args():
         lottery = True
     if args.sort_by in sort_by_values:
         sortby = args.sort_by
-
-# in - string - messages to print
-# takes a string and will print it as output if verbose
-def log(info):
-    if verbose:
-        print(info)
-

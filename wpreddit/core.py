@@ -62,3 +62,10 @@ def external_script():
             check_call(["bash", config.walldir + "/external.sh"])
         except CalledProcessError or FileNotFoundError:
             print("external.sh did not complete successfully, check for errors.")
+
+
+# in - string - messages to print
+# takes a string and will print it as output if verbose
+def log(info):
+    if config.verbose:
+        print(info)

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
         name='wallpaper-reddit',
-        version='3.1.1',
+        version='4.0.0',
         packages=find_packages(),
         url='https://www.github.com/markubiak/wallpaper-reddit',
         author='Mark Kubiak',
@@ -14,7 +14,7 @@ setup(
         },
         entry_points={
             'console_scripts': [
-                'wallpaper-reddit = wpreddit.main:run'
+                'wallpaper-reddit = wpreddit.core:run'
             ]
         }
 )
