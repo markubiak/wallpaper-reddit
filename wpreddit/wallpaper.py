@@ -73,6 +73,8 @@ def linux_wallpaper():
             check_call(["pcmanfm", "-w", "%s" % path])
         elif check_de(de, ["i3", "bspwm"]):
             check_call(["feh", "--bg-fill", path])
+        elif check_de(de, ["sway"]):
+            check_call(["swaymsg", "output * bg %s fill" % path])
         elif config.setcmd == '':
             print("Your DE could not be detected to set the wallpaper. "
                   "You need to set the 'setcommand' paramter at ~/.config/wallpaper-reddit. "
