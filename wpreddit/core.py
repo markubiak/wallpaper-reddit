@@ -3,12 +3,8 @@ import random
 import sys
 from pkg_resources import resource_string
 from subprocess import check_call, CalledProcessError
-
 from wpreddit import config, connection, download, reddit, wallpaper
-
-
-# global var for verbosity
-verbose = False
+from wpreddit.common import log
 
 
 def run():
@@ -30,7 +26,7 @@ def run():
                 path = os.path.expanduser("~/.config/autostart")
                 if not os.path.exists(path):
                     os.makedirs(path)
-                    config.log(path + " created")
+                    log(path + " created")
                 with open(path + "/wallpaper-reddit.desktop", "wb") as f:
                     f.write(dfile)
                 print("Autostart file created at " + path)
@@ -50,6 +46,10 @@ def run():
         links = reddit.get_links()
         valid = reddit.choose_valid(links)
         download.download_image(valid[0], valid[1])
+        if platform.system() == "Windows":
+            img.save(config.walldir + '\\wallpaper.bmp', "BMP")
+        else:
+            img.save(config.walldir + '/wallpaper.jpg', "JPEG")
         download.save_info(valid)
         wallpaper.set_wallpaper()
         external_script(cfg.path.external)
@@ -72,8 +72,3 @@ def external_script(path):
             print("%s did not execute successfully, check for errors." % path)
 
 
-# in - string - messages to print
-# takes a string and will print it as output if verbose
-def log(info):
-    if verbose:
-        print(info)

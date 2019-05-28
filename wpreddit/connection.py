@@ -6,7 +6,7 @@ import urllib.request
 from socket import timeout
 from urllib.error import HTTPError, URLError
 
-from wpreddit.core import log
+from wpreddit.common import log
 
 
 # in - string - web page url

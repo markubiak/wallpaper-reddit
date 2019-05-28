@@ -8,7 +8,7 @@ setup(
         author='Mark Kubiak',
         author_email='mkubiak.dev@gmail.com',
         description='A utility that downloads wallpapers from reddit',
-        install_requires=['Pillow>=3.0'],
+        install_requires=['Pillow>=3.0', 'requests'],
         package_data={
             'wpreddit': ['fonts/*.otf', 'conf_files/*.conf', 'conf_files/*.desktop']
         },

@@ -5,7 +5,6 @@ import re
 import sys
 from PIL import Image
 from urllib import request
-
 from wpreddit import config, connection
 
 
