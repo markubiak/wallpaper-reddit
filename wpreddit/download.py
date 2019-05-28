@@ -18,8 +18,11 @@ def download_image(url):
                                                 'github.com/markubiak/wallpaper-reddit'},
                          stream=True)
         print("downloading %s" % url)
-        img = Image.open(r.raw)
-        return img.convert('RGB')
+        img = Image.open(r.raw).convert('RGB')
+        if img.mode == "RGBA":
+            log("removing alpha layer")
+            img = pure_pil_alpha_to_color_v2(img)
+        return img
     except IOError:
         print("Error downloading image!")
         sys.exit(1)
@@ -101,3 +104,15 @@ def save_info(basepath, url, title, permalink):
 # Out: (String) title without any annoying tags
 def remove_tags(str):
     return re.sub(' +', ' ', re.sub("[\[\(\<].*?[\]\)\>]", "", str)).strip()
+
+
+# Alpha composite an RGBA Image with a specified color.
+# Source: http://stackoverflow.com/a/9459208/284318
+# In:  (Image) PIL RGBA Image object - image with alpha channel
+#      (int, int, int) Tuple r, g, b (default 255, 255, 255) color
+#                      of the background to paste the img on top of.
+def pure_pil_alpha_to_color_v2(image, color=(255, 255, 255)):
+    image.load()  # needed for split()
+    background = Image.new('RGB', image.size, color)
+    background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
+    return background
