@@ -1,11 +1,12 @@
 import ctypes
 import json
+import platform
 import time
 import urllib.request
 from socket import timeout
 from urllib.error import HTTPError, URLError
 
-from wpreddit import config
+from wpreddit.core import log
 
 
 # in - string - web page url
@@ -41,20 +42,20 @@ def check_not_redirected():
 # out - boolean - whether the connection was successfully establised
 # waits for a connection to the specified url, or returns False if no connection could be made in the time frame
 def wait_for_connection(tries, interval):
-    config.log('Waiting for a connection...')
+    log('Waiting for a connection...')
     for i in range(tries):
-        if config.opsys == "Linux":
+        if platform.system() == "Linux":
             # Reloads /etc/resolv.conf
             # credit: http://stackoverflow.com/questions/21356781/urrlib2-urlopen-name-or-service-not-known-persists-when-starting-script-witho
             libc = ctypes.cdll.LoadLibrary('libc.so.6')
             res_init = libc.__res_init
             res_init()
-        config.log('Attempt # ' + str(i + 1) + ' to connect...')
+        log('Attempt # ' + str(i + 1) + ' to connect...')
         if connected("http://www.reddit.com"):
-            config.log('Connected to the internet, checking if you\'re being redirectied...')
+            log('Connected to the internet, checking if you\'re being redirectied...')
             if check_not_redirected():
-                config.log('No redirection.  Starting the main script...')
+                log('No redirection.  Starting the main script...')
                 return True
-            config.log('Redirected.  Trying again...')
+            log('Redirected.  Trying again...')
         time.sleep(interval)
     return False

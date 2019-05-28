@@ -3,21 +3,20 @@ import sys
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from urllib import request
 
-from wpreddit import config
-
+from wpreddit.core import log
 
 # credit: http://www.techniqal.com/blog/2011/01/18/python-3-file-read-write-with-urllib/
 # in - string - direct url of the image to download
 # out - Image - image
 # downloads the specified image and saves it to disk
-def download_image(url, title):
+def download_image(url, resize=True, title=None):
     uaurl = request.Request(url, headers={'User-Agent': 'wallpaper-reddit python script by /u/MarcusTheGreat7'})
     f = request.urlopen(uaurl)
     print("downloading " + url)
     try:
         img = Image.open(f).convert('RGB')
-        if config.resize:
-            config.log("resizing the downloaded wallpaper")
+        if resize:
+            log("resizing the downloaded wallpaper")
             img = ImageOps.fit(img, (config.minwidth, config.minheight), Image.ANTIALIAS)
         if config.settitle:
             img = set_image_title(img, title)

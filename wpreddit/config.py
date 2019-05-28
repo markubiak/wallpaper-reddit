@@ -139,16 +139,16 @@ def parse_config():
     sortby = config.get('extra', 'sortby', fallback="hot")
 
     # title overlay
-    settitle = config.getboolean('Title Overlay', 'settitle', fallback=False)
-    titlesize = config.getint('Title Overlay', 'titlesize', fallback=24)
-    titlealign_x = config.get('Title Overlay', 'titlealignx', fallback='right').lower()
-    titlealign_y = config.get('Title Overlay', 'titlealigny', fallback='top').lower()
-    titleoffset_x = config.getint('Title Overlay', 'titleoffsetx', fallback=5)
-    titleoffset_y = config.getint('Title Overlay', 'titleoffsety', fallback=5)
+    settitle = config.getboolean('titleoverlay', 'settitle', fallback=False)
+    titlesize = config.getint('titleoverlay', 'titlesize', fallback=24)
+    titlealign_x = config.get('titleoverlay', 'titlealignx', fallback='right').lower()
+    titlealign_y = config.get('titleoverlay', 'titlealigny', fallback='top').lower()
+    titleoffset_x = config.getint('titleoverlay', 'titleoffsetx', fallback=5)
+    titleoffset_y = config.getint('titleoverlay', 'titleoffsety', fallback=5)
 
     # startup
-    startupinterval = config.getint('Startup', 'interval', fallback=3)
-    startupattempts = config.getint('Startup', 'attempts', fallback=10)
+    startupinterval = config.getint('startup', 'interval', fallback=3)
+    startupattempts = config.getint('startup', 'attempts', fallback=10)
 
     # save
     if opsys == 'Windows':
@@ -160,19 +160,21 @@ def parse_config():
 
 # parses command-line arguments and stores them to proper global variables
 def parse_args():
+    # parsing configuration
     sort_by_values = ["hot", "new", "controversial", "top", "rising"]
-    parser = argparse.ArgumentParser(description="Pulls wallpapers from specified subreddits in reddit.com")
+    parser = argparse.ArgumentParser(description="Pulls wallpapers from subreddits of reddit.com")
     parser.add_argument("subreddits", help="subreddits to check for wallpapers", nargs="*")
     parser.add_argument("-v", "--verbose", help="increases program verbosity", action="store_true")
     parser.add_argument("-f", "--force",
-                        help="forces wallpapers to re-download even if it has the same url as the current wallpaper",
+                        help="forces wallpapers to re-download and ignores optimizations",
                         action="store_true")
     parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection",
                         action="store_true")
-    parser.add_argument("--auto-startup", help="sets the program to automatically run on every login (Linux only)",
+    parser.add_argument("--auto-startup",
+                        help="sets the program to automatically run on every desktop login (Linux only)",
                         action="store_true")
     parser.add_argument("--save",
-                        help='saves the current wallpaper (does not download a wallpaper)',
+                        help='saves the current wallpaper to ' + savedir,
                         action="store_true")
     parser.add_argument("--resize", help="resizes the image to the height and width specified in the config after "
                                          "wallpaper is set.  Enabled by default in the configuration file,",

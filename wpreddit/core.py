@@ -7,20 +7,27 @@ from subprocess import check_call, CalledProcessError
 from wpreddit import config, connection, download, reddit, wallpaper
 
 
+# global var for verbosity
+verbose = False
+
+
 def run():
     try:
-        config.init_config()
-        # blacklist the current wallpaper if requested
-        if config.blacklistcurrent:
+        cfg = config.init_config()
+        # switch based on action
+        if cfg.action == 'blacklist':
+            # blacklist the current wallpaper if requested
             reddit.blacklist_current()
-        # check if the program is run in a special case (save or startup)
-        if config.save:
+            sys.exit(0)
+        elif cfg.action == 'save':
+            # check if the program is run in a special case (save or startup)
             wallpaper.save_wallpaper()
             sys.exit(0)
-        if config.autostartup:
+        elif cfg.action == 'autostartup':
+            # generate file for autostart on login and exit
             if config.opsys == "Linux":
                 dfile = resource_string(__name__, 'conf_files/linux-autostart.desktop')
-                path = os.path.expanduser("~/.config") + "/autostart"
+                path = os.path.expanduser("~/.config/autostart")
                 if not os.path.exists(path):
                     os.makedirs(path)
                     config.log(path + " created")
@@ -31,41 +38,42 @@ def run():
             else:
                 print("Automatic startup creation only currently supported on Linux")
                 sys.exit(1)
-        if config.startup:
-            connection.wait_for_connection(config.startupattempts, config.startupinterval)
-        # make sure you're actually connected to reddit
-        if not connection.connected("http://www.reddit.com"):
-            print("ERROR: You do not appear to be connected to Reddit. Exiting")
-            sys.exit(1)
+        # normal mode
+        if cfg.action == 'startup':
+            # give it a bit to connect to wifi
+            connection.wait_for_connection(cfg.startup.attempts, cfg.startup.interval)
+        else:
+            # exit if no internet connection
+            if not connection.connected("http://www.reddit.com"):
+                print("ERROR: You do not appear to be connected to Reddit. Exiting")
+                sys.exit(1)
         links = reddit.get_links()
-        if (config.lottery == True):
-            random.shuffle(links)
         valid = reddit.choose_valid(links)
         download.download_image(valid[0], valid[1])
         download.save_info(valid)
         wallpaper.set_wallpaper()
-        external_script()
+        external_script(cfg.path.external)
     except KeyboardInterrupt:
         sys.exit(1)
 
 
-# creates and runs the ~/.wallpaper/external.sh script
-def external_script():
+# creates and runs the ~/.local/share/wallpaper-reddit/external.sh script
+def external_script(path):
     if config.opsys == 'Linux' or config.opsys == 'Darwin':
         try:
-            if not os.path.isfile(config.walldir + '/external.sh'):
-                with open(config.walldir + '/external.sh', 'w') as external:
+            if not os.path.isfile(path):
+                with open(path, 'w') as external:
                     external.write(
                         '# ! /bin/bash\n\n# You can enter custom commands here that will execute after the main '
                         'program is finished')
-                check_call(["chmod", "+x", config.walldir + "/external.sh"])
-            check_call(["bash", config.walldir + "/external.sh"])
+                check_call(["chmod", "+x", path])
+            check_call(["bash", path])
         except CalledProcessError or FileNotFoundError:
-            print("external.sh did not complete successfully, check for errors.")
+            print("%s did not execute successfully, check for errors." % path)
 
 
 # in - string - messages to print
 # takes a string and will print it as output if verbose
 def log(info):
-    if config.verbose:
+    if verbose:
         print(info)
