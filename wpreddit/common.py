@@ -1,3 +1,6 @@
+import sys
+
+
 verbose = False
 
 
@@ -6,3 +9,8 @@ verbose = False
 def log(info):
     if verbose:
         print(info)
+
+
+def exitmsg(message, code=1):
+    print(message)
+    sys.exit(code)

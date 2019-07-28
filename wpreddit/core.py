@@ -9,19 +9,17 @@ from wpreddit.common import log
 
 def run():
     try:
-        cfg = config.init_config()
+        config.init_config()
+        cfg = config.cfg
         # switch based on action
-        if cfg.action == 'blacklist':
-            # blacklist the current wallpaper if requested
+        if cfg['mode'] == "blacklist":
             reddit.blacklist_current()
             sys.exit(0)
-        elif cfg.action == 'save':
-            # check if the program is run in a special case (save or startup)
+        elif cfg['mode'] == "save_current":
             wallpaper.save_wallpaper()
             sys.exit(0)
-        elif cfg.action == 'autostartup':
-            # generate file for autostart on login and exit
-            if config.opsys == "Linux":
+        elif cfg['mode'] == "gen_autostart":
+            if cfg['opsys'] == "Linux":
                 dfile = resource_string(__name__, 'conf_files/linux-autostart.desktop')
                 path = os.path.expanduser("~/.config/autostart")
                 if not os.path.exists(path):

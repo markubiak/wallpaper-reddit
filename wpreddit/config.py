@@ -2,89 +2,98 @@ import argparse
 import configparser
 import os
 import platform
-import sys
 from pkg_resources import resource_string
+from wpreddit.common import log, exitmsg
 
-# global vars
-verbose = False
-startup = False
-autostartup = False
-force_dl = False
-startupinterval = 0
-startupattempts = 0
-save = False
-subs = []
-minwidth = 0
-minheight = 0
-minratio = 0.0
-titlesize = 0
-titlealign_x = ""
-titlealign_y = ""
-titleoffset_x = 0
-titleoffset_y = 0
-maxlinks = 0
-resize = False
-settitle = False
-randomsub = False
-blacklistcurrent = False
-setcmd = ''
-walldir = ''
-confdir = ''
-savedir = ''
-sortby = ''
-opsys = platform.system()
+# global config dictionary, init to working defaults
+cfg = {
+    'verbose': False,
+    'mode': "normal",
+    'subs': ["earthporn", "spaceporn", "skyporn", "imaginarystarscapes"],
+    'sorting_alg': "hot",
+    'random_sub': False,
+    'force_download': False,
+    'max_links': 20,
+    'resize': False,
+    'os': "",
+    'set_command': "",
+    'dirs': {
+        'data': "",
+        'config': "",
+        'save': ""
+    },
+    'startup': {
+        'interval': 3,
+        'attempts': 10
+    },
+    'min_dimensions': {
+        'width': 1920,
+        'height': 1080,
+        'ratio': 0.0
+    },
+    'title': {
+        'set': False,
+        'size_px': 24,
+        'align_x': "right",
+        'align_y': "top",
+        'offset_x_px': 5,
+        'offset_y_px': 5
+    }
+}
 
 
 def init_config():
-    global walldir
-    global confdir
+
+    cfg['os'] = platform.system()
 
     # Get the full path of the directory per platform
-    if opsys == "Linux":
+    if cfg['os'] == "Linux":
         xdg_config = os.getenv('XDG_CONFIG_HOME')
         xdg_data = os.getenv('XDG_DATA_HOME')
         if xdg_config is not None:
-            confdir = os.path.expanduser(xdg_config + "/wallpaper-reddit")
+            cfg['dirs']['config'] = os.path.expanduser(xdg_config + "/wallpaper-reddit")
         else:
-            confdir = os.path.expanduser("~/.config/wallpaper-reddit")
+            cfg['dirs']['config'] = os.path.expanduser("~/.config/wallpaper-reddit")
         if xdg_data is not None:
-            walldir =  os.path.expanduser(xdg_data + "/wallpaper-reddit")
+            cfg['dirs']['data'] =  os.path.expanduser(xdg_data + "/wallpaper-reddit")
         else:
-            walldir = os.path.expanduser("~/.local/share/wallpaper-reddit")
-    elif opsys == "Windows":
+            cfg['dirs']['data'] = os.path.expanduser("~/.local/share/wallpaper-reddit")
+    elif cfg['os'] == "Windows":
         appdata = os.getenv("APPDATA")
-        walldir = os.path.expanduser(appdata + "/wallpaper-reddit/data")
-        confdir = os.path.expanduser(appdata + "/wallpaper-reddit/config")
+        cfg['dirs']['config'] = os.path.expanduser(appdata + "/wallpaper-reddit/config")
+        cfg['dirs']['data'] = os.path.expanduser(appdata + "/wallpaper-reddit/data")
+    elif cfg['os'] == "Darwin":
+        cfg['dirs']['config'] = os.path.expanduser("~/Library/Preferences/wallpaper-reddit")
+        cfg['dirs']['data'] = os.path.expanduser("~/Library/Application Support/wallpaper-reddit")
     else:
-        walldir = os.path.expanduser("~/Library/Application Support/wallpaper-reddit")
-        confdir = os.path.expanduser("~/Library/Preferences/wallpaper-reddit")
+        exitmsg("Operating system \"" + cfg['os'] + "\" incorrectly identified or unsupported.")
 
     # Make the paths if they are nonexistent
-    if not os.path.exists(walldir):
-        os.makedirs(walldir)
-        log(walldir + " created")
-    if not os.path.exists(confdir):
-        os.makedirs(confdir)
-        log(confdir + " created")
+    if not os.path.exists(cfg['dirs']['data']):
+        os.makedirs(cfg['dirs']['data'])
+        log(cfg['dirs']['data'] + " created")
+    if not os.path.exists(cfg['dirs']['config']):
+        os.makedirs(cfg['dirs']['config'])
+        log(cfg['dirs']['config'] + " created")
 
     # Create empty versions of specific files if necessary
-    if not os.path.exists(walldir + '/blacklist.txt'):
-        with open(walldir + '/blacklist.txt', 'w') as blacklist:
+    if not os.path.exists(cfg['dirs']['data'] + '/blacklist.txt'):
+        with open(cfg['dirs']['data'] + '/blacklist.txt', 'w') as blacklist:
             blacklist.write('')
-    if not os.path.exists(walldir + '/url.txt'):
-        with open(walldir + '/url.txt', 'w') as urlfile:
+    if not os.path.exists(cfg['dirs']['data'] + '/url.txt'):
+        with open(cfg['dirs']['data'] + '/url.txt', 'w') as urlfile:
             urlfile.write('')
-    if not os.path.exists(walldir + '/fonts'):
-        os.makedirs(walldir + '/fonts')
-    if not os.path.exists(walldir + '/fonts/Cantarell-Regular.otf'):
-        with open(walldir + '/fonts/Cantarell-Regular.otf', 'wb') as font:
+    if not os.path.exists(cfg['dirs']['data'] + '/fonts'):
+        os.makedirs(cfg['dirs']['data'] + '/fonts')
+    if not os.path.exists(cfg['dirs']['data'] + '/fonts/Cantarell-Regular.otf'):
+        with open(cfg['dirs']['data'] + '/fonts/Cantarell-Regular.otf', 'wb') as font:
             font.write(resource_string(__name__, 'fonts/Cantarell-Regular.otf'))
-    if not os.path.isfile(confdir + '/wallpaper-reddit.conf'):
-        if opsys == 'Windows':
+    if not os.path.isfile(cfg['dirs']['config'] + '/wallpaper-reddit.conf'):
+        if cfg['os'] == 'Windows':
             cfile = resource_string(__name__, 'conf_files/windows.conf')
         else:
             cfile = resource_string(__name__, 'conf_files/unix.conf')
-        with open(confdir + '/wallpaper-reddit.conf', 'wb') as f:
+        with open(cfg['dirs']['config'] + '/wallpaper-reddit.conf', 'wb') as f:
             f.write(cfile)
 
     # Get the configuration, start with cfg files and use args as overrides
@@ -92,70 +101,83 @@ def init_config():
     parse_args()
     log("config and args parsed")
 
+
 # reads the configuration file
 def parse_config():
-    # options to change
-    global subs
-    global maxlinks
-    global minheight
-    global minwidth
-    global minratio
-    global settitle
-    global titlesize
-    global titlealign_x
-    global titlealign_y
-    global titleoffset_x
-    global titleoffset_y
-    global resize
-    global setcmd
-    global startupinterval
-    global startupattempts
-    global savedir
-    global randomsub
-    global lottery
-    global sortby
 
     # read the config and check the version
     config = configparser.ConfigParser()
-    config.read(confdir + '/wallpaper-reddit.conf')
-    if config.get('miscellaneous', 'version', fallback=0) is not 4:
-        print("You are using an old configuration file.  Please delete your config file in " + confdir +
-              " and let the program create a new one.")
-        sys.exit(1)
+    config.read(cfg['dirs']['config'] + '/wallpaper-reddit.conf')
+    if config.get('misc', 'version', fallback="0") is not "4":
+        exitmsg("You are using an old configuration file.  Please delete your config file in " +
+                cfg['dirs']['config'] + " and let the program create a new one.")
 
     # core
-    subs = config.get('core', 'subs', fallback='earthporn,spaceporn,skyporn,imaginarystarscapes')
-    subs = [x.strip() for x in subs.split(',')]
-    minwidth = config.getint('core', 'minwidth', fallback=1920)
-    minheight = config.getint('core', 'minheight', fallback=1080)
-    minratio = config.getfloat('core', 'minratio', fallback=0.0)
-    resize = config.getboolean('core', 'resize', fallback=True)
-    maxlinks = config.getint('core', 'maxlinks', fallback=20)
-    setcmd = config.get('core', 'setcommand', fallback='')
+    subs = [x.strip() for x in config.get('core', 'subs').split(',')]
+    random_sub = config.getboolean('core', 'random_sub')
+    sorting_alg = config.get('core', 'sorting_alg')
+    max_links = config.getint('core', 'max_links')
+    resize = config.getboolean('core', 'resize')
+    set_command = config.get('core', 'set_command')
+    if subs is not None:
+        cfg['subs'] = subs
+    if random_sub is not None:
+        cfg['random_sub'] = random_sub
+    if sorting_alg is not None:
+        cfg['sorting_alg'] = sorting_alg
+    if max_links is not None:
+        cfg['max_links'] = max_links
+    if resize is not None:
+        cfg['resize'] = resize
+    if set_command is not None:
+        cfg['set_command'] = set_command
 
-    # extra
-    randomsub = config.getboolean('extra', 'random', fallback=False)
-    lottery = config.getboolean('extra', 'lottery', fallback=False)
-    sortby = config.get('extra', 'sortby', fallback="hot")
+    # min dimensions
+    min_width = config.getint('min_dimensions', 'width')
+    min_height = config.getint('min_dimensions', 'height')
+    min_ratio = config.getfloat('min_dimensions', 'ratio')
+    if min_width is not None:
+        cfg['min_dimensions']['width'] = min_width
+    if min_height is not None:
+        cfg['min_dimensions']['height'] = min_height
+    if min_ratio is not None:
+        cfg['min_dimensions']['ratio'] = min_ratio
 
     # title overlay
-    settitle = config.getboolean('titleoverlay', 'settitle', fallback=False)
-    titlesize = config.getint('titleoverlay', 'titlesize', fallback=24)
-    titlealign_x = config.get('titleoverlay', 'titlealignx', fallback='right').lower()
-    titlealign_y = config.get('titleoverlay', 'titlealigny', fallback='top').lower()
-    titleoffset_x = config.getint('titleoverlay', 'titleoffsetx', fallback=5)
-    titleoffset_y = config.getint('titleoverlay', 'titleoffsety', fallback=5)
+    set_title = config.getboolean('title', 'set')
+    size_px = config.getint('title', 'size_px')
+    align_x = config.get('title', 'align_x')
+    align_y = config.get('title', 'align_y')
+    offset_x_px = config.getint('title', 'offset_x_px')
+    offset_y_px = config.getint('title', 'offset_y_px')
+    if set_title is not None:
+        cfg['title']['set'] = set_title
+    if size_px is not None:
+        cfg['title']['size_px'] = size_px
+    if align_x is not None:
+        cfg['title']['align_x'] = align_x
+    if align_y is not None:
+        cfg['title']['align_y'] = align_y
+    if offset_x_px is not None:
+        cfg['title']['offset_x_px'] = offset_x_px
+    if offset_y_px is not None:
+        cfg['title']['offset_y_px'] = offset_y_px
 
     # startup
-    startupinterval = config.getint('startup', 'interval', fallback=3)
-    startupattempts = config.getint('startup', 'attempts', fallback=10)
+    interval = config.getint('startup', 'interval')
+    attempts = config.getint('startup', 'attempts')
+    if interval is not None:
+        cfg['startup']['interval'] = interval
+    if attempts is not None:
+        cfg['startup']['attempts'] = attempts
 
     # save
-    if opsys == 'Windows':
-        default_savedir = "~/My Pictures/Wallpapers"
+    if cfg['os'] == 'Windows':
+        default_save_dir = "~/My Pictures/Wallpapers"
     else:
-        default_savedir = "~/Pictures/Wallpapers"
-    savedir = os.path.expanduser(config.get('Save', 'directory', fallback=default_savedir))
+        default_save_dir = "~/Pictures/Wallpapers"
+    cfg['dirs']['save'] = os.path.expanduser(config.get(
+        'Save', 'directory', fallback=default_save_dir))
 
 
 # parses command-line arguments and stores them to proper global variables
