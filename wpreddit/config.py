@@ -3,11 +3,10 @@ import configparser
 import os
 import platform
 from pkg_resources import resource_string
-from wpreddit.common import log, exitmsg
+from wpreddit.common import log, exit_msg, set_verbose
 
 # global config dictionary, init to working defaults
 cfg = {
-    'verbose': False,
     'mode': "normal",
     'subs': ["earthporn", "spaceporn", "skyporn", "imaginarystarscapes"],
     'sorting_alg': "hot",
@@ -17,6 +16,7 @@ cfg = {
     'resize': False,
     'os': "",
     'set_command': "",
+    'external_script': "/external.sh",
     'dirs': {
         'data': "",
         'config': "",
@@ -66,7 +66,7 @@ def init_config():
         cfg['dirs']['config'] = os.path.expanduser("~/Library/Preferences/wallpaper-reddit")
         cfg['dirs']['data'] = os.path.expanduser("~/Library/Application Support/wallpaper-reddit")
     else:
-        exitmsg("Operating system \"" + cfg['os'] + "\" incorrectly identified or unsupported.")
+        exit_msg("Operating system \"" + cfg['os'] + "\" incorrectly identified or unsupported.")
 
     # Make the paths if they are nonexistent
     if not os.path.exists(cfg['dirs']['data']):
@@ -109,8 +109,8 @@ def parse_config():
     config = configparser.ConfigParser()
     config.read(cfg['dirs']['config'] + '/wallpaper-reddit.conf')
     if config.get('misc', 'version', fallback="0") is not "4":
-        exitmsg("You are using an old configuration file.  Please delete your config file in " +
-                cfg['dirs']['config'] + " and let the program create a new one.")
+        exit_msg("You are using an old configuration file.  Please delete your config file in " +
+                 cfg['dirs']['config'] + " and let the program create a new one.")
 
     # core
     subs = [x.strip() for x in config.get('core', 'subs').split(',')]
@@ -183,62 +183,61 @@ def parse_config():
 # parses command-line arguments and stores them to proper global variables
 def parse_args():
     # parsing configuration
-    sort_by_values = ["hot", "new", "controversial", "top", "rising"]
+    sort_alg_values = ["hot", "new", "controversial", "top", "rising"]
     parser = argparse.ArgumentParser(description="Pulls wallpapers from subreddits of reddit.com")
-    parser.add_argument("subreddits", help="subreddits to check for wallpapers", nargs="*")
-    parser.add_argument("-v", "--verbose", help="increases program verbosity", action="store_true")
+    parser.add_argument("subreddits",
+                        help="subreddits to check for wallpapers",
+                        nargs="*")
+    parser.add_argument("-v", "--verbose",
+                        help="increases program verbosity",
+                        action="store_true")
     parser.add_argument("-f", "--force",
                         help="forces wallpapers to re-download and ignores optimizations",
                         action="store_true")
-    parser.add_argument("--startup", help="runs the program as a startup application, waiting on internet connection",
+    parser.add_argument("--startup",
+                        help="runs the program as a startup application, waiting on internet connection",
                         action="store_true")
-    parser.add_argument("--auto-startup",
+    parser.add_argument("--autostart",
                         help="sets the program to automatically run on every desktop login (Linux only)",
                         action="store_true")
     parser.add_argument("--save",
-                        help='saves the current wallpaper to ' + savedir,
+                        help='saves the current wallpaper to ' + cfg['dirs']['save'],
                         action="store_true")
-    parser.add_argument("--resize", help="resizes the image to the height and width specified in the config after "
+    parser.add_argument("--resize",
+                        help="resizes the image to the height and width specified in the config after "
                                          "wallpaper is set.  Enabled by default in the configuration file,",
                         action="store_true")
-    parser.add_argument("-b", "--blacklist", help="blacklists the current wallpaper and downloads a new wallpaper",
+    parser.add_argument("--blacklist",
+                        help="blacklists the current wallpaper and downloads a new wallpaper",
                         action="store_true")
-    parser.add_argument("-s", "--sort-by", help="choose Reddit's sorting algorithm from {} (default=hot)".format(sort_by_values))
+    parser.add_argument("-s", "--sort-alg",
+                        help="choose Reddit's sorting algorithm from {} (default=hot)".format(sort_alg_values))
     parser.add_argument("--random",
-                        help="will pick a random subreddit from the ones provided instead of turning them into a multireddit",
+                        help="will pick a random subreddit instead of turning them into a multireddit",
                         action="store_true")
-    parser.add_argument("--settitle", help="write title over the image", action="store_true")
-    parser.add_argument("--lottery", help="select a random image from a subreddit instead of the newest", action="store_true")
- 
+    parser.add_argument("--set-title",
+                        help="write title over the image",
+                        action="store_true")
+
     args = parser.parse_args()
-    global subs
-    global verbose
-    global save
-    global force_dl
-    global startup
-    global autostartup
-    global resize
-    global settitle
-    global randomsub
-    global blacklistcurrent
-    global lottery
-    global sortby
     if not args.subreddits == []:
-        subs = args.subreddits
-    verbose = args.verbose
-    save = args.save
-    startup = args.startup
-    autostartup = args.auto_startup
-    force_dl = args.force
+        cfg['subs'] = args.subreddits
+    set_verbose(args.verbose)
+    cfg['force_download'] = args.force
+    # mode switch
+    if args.save:
+        cfg['mode'] = "save_current"
+    elif args.startup:
+        cfg['mode'] = "startup"
+    elif args.autostart:
+        cfg['mode'] = "gen_autostart"
+    elif args.blacklist:
+        cfg['mode'] = "blacklist_current"
     if args.resize:
-        resize = True
-    if args.settitle:
-        settitle = True
+        cfg['resize'] = True
+    if args.set_title:
+        cfg['title']['set'] = True
     if args.random:
-        randomsub = True
-    if args.blacklist:
-        blacklistcurrent = True
-    if args.lottery:
-        lottery = True
-    if args.sort_by in sort_by_values:
-        sortby = args.sort_by
+        cfg['random_sub'] = True
+    if args.sort_alg in sort_alg_values:
+        cfg['sorting_alg'] = args.sort_alg
