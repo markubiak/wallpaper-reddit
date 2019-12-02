@@ -1,10 +1,10 @@
 import ctypes
 import json
+import logging
 import platform
 import requests
 import time
 
-from .common import log
 from .config import cfg
 
 
@@ -48,7 +48,7 @@ def connected(url):
 #      (int) interval to retry connection
 # Out: (boolean) whether the connection was successfully establised
 def wait_for_connection(tries, interval):
-    log('Waiting for a connection...')
+    logging.info('Waiting for a connection...')
     for i in range(tries):
         if cfg['os'] == "Linux":
             # Reloads /etc/resolv.conf
@@ -56,7 +56,7 @@ def wait_for_connection(tries, interval):
             libc = ctypes.cdll.LoadLibrary('libc.so.6')
             res_init = libc.__res_init
             res_init()
-        log('Attempt # ' + str(i + 1) + ' to connect...')
+        logging.debug('Attempt # ' + str(i + 1) + ' to connect...')
         if connected_to_reddit():
             return True
         time.sleep(interval)

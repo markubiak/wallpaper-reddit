@@ -1,10 +1,11 @@
 import argparse
 import configparser
+import logging
 import os
 import platform
 from pkg_resources import resource_string
 
-from .common import log, exit_msg, set_verbose
+from .common import exit_msg
 
 
 # global config dictionary, init to working defaults
@@ -73,10 +74,10 @@ def init_config():
     # Make the paths if they are nonexistent
     if not os.path.exists(cfg['dirs']['data']):
         os.makedirs(cfg['dirs']['data'])
-        log(cfg['dirs']['data'] + " created")
+        logging.info(cfg['dirs']['data'] + " created")
     if not os.path.exists(cfg['dirs']['config']):
         os.makedirs(cfg['dirs']['config'])
-        log(cfg['dirs']['config'] + " created")
+        logging.info(cfg['dirs']['config'] + " created")
 
     # Create empty versions of specific files if necessary
     if not os.path.exists(cfg['dirs']['data'] + '/blacklist.txt'):
@@ -101,7 +102,7 @@ def init_config():
     # Get the configuration, start with cfg files and use args as overrides
     parse_config()
     parse_args()
-    log("config and args parsed")
+    logging.info("config and args parsed")
 
 
 # reads the configuration file
@@ -224,7 +225,10 @@ def parse_args():
     args = parser.parse_args()
     if not args.subreddits == []:
         cfg['subs'] = args.subreddits
-    set_verbose(args.verbose)
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
     cfg['force_download'] = args.force
     # mode switch
     if args.save:

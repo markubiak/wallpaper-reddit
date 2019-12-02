@@ -1,11 +1,12 @@
 import ctypes
+import logging
 import os
 import random
 import re
 import shutil
 from subprocess import check_call, check_output, CalledProcessError
 
-from .common import log, exit_msg
+from .common import exit_msg
 from .config import cfg
 
 
@@ -22,7 +23,7 @@ def set_wallpaper():
             exit_msg("Setting wallpaper failed.  Ensure all dependencies listen in the README are installed.")
     else:
         linux_wallpaper()
-    print("wallpaper set command was run")
+    logging.info("Wallpaper set command was run.")
 
 
 def check_de(current_de, list_of_de):
@@ -82,11 +83,11 @@ def linux_wallpaper():
 def save_wallpaper():
     if not os.path.exists(cfg['dirs']['save']):
         os.makedirs(cfg['dirs']['save'])
-        log(cfg['dirs']['save'] + " created")
+        logging.warning(cfg['dirs']['save'] + " did not exist and was created")
     if not os.path.isfile(cfg['dirs']['save'] + '/titles.txt'):
         with open(cfg['dirs']['save'] + '/titles.txt', 'w') as f:
             f.write('Titles of the saved wallpapers:')
-        log(cfg['dirs']['save'] + "/titles.txt created")
+        logging.warning(cfg['dirs']['save'] + "/titles.txt did not exist and was created")
 
     wp_count = 0
     orig_path = cfg['dirs']['data']
@@ -109,4 +110,4 @@ def save_wallpaper():
     with open(cfg['dirs']['save'] + '/titles.txt', 'a') as f:
         f.write('\n' + 'wallpaper' + str(wp_count) + ': ' + title)
 
-    print("Current wallpaper saved to " + new_path)
+    logging.info("Current wallpaper saved to " + new_path)

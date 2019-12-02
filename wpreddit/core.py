@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 import sys
@@ -5,7 +6,7 @@ from pkg_resources import resource_string
 from subprocess import check_call, CalledProcessError
 
 from .blacklist import Blacklist
-from .common import log, exit_msg
+from .common import exit_msg
 from .config import init_config, cfg
 from .connection import wait_for_connection, connected_to_reddit
 from .download import download_image, save_info
@@ -29,7 +30,7 @@ def run():
                 path = os.path.expanduser("~/.config/autostart")
                 if not os.path.exists(path):
                     os.makedirs(path)
-                    log(path + " created")
+                    logging.info(path + " created")
                 with open(path + "/wallpaper-reddit.desktop", "wb") as f:
                     f.write(dfile)
                 exit_msg("Autostart file created at " + path, code=0)
@@ -87,7 +88,7 @@ def external_script(path):
                 check_call(["chmod", "+x", path])
             check_call(["bash", path])
         except CalledProcessError or FileNotFoundError:
-            print("%s did not execute successfully, check for errors." % path)
+            logging.warning("%s did not execute successfully, check for errors." % path)
 
 if __name__ == '__main__':
     run()

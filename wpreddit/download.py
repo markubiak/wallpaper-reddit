@@ -1,11 +1,10 @@
 from io import BytesIO
+import logging
 from pkg_resources import resource_string
 import re
 import requests
 import sys
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-
-from .common import log
 
 
 # In:  (String) direct url of the image to download
@@ -17,14 +16,14 @@ def download_image(url):
                          headers={'User-Agent': 'wallpaper-reddit python script: ' +
                                                 'github.com/markubiak/wallpaper-reddit'},
                          stream=True)
-        print("downloading %s" % url)
+        logging.info("Downloading %s" % url)
         img = Image.open(r.raw).convert('RGB')
         if img.mode == "RGBA":
-            log("removing alpha layer")
+            logging.debug("Removing alpha layer...")
             img = pure_pil_alpha_to_color_v2(img)
         return img
     except IOError:
-        print("Error downloading image!")
+        logging.error("Error downloading image!")
         sys.exit(1)
 
 
@@ -34,7 +33,7 @@ def download_image(url):
 # Out: (Image) resized and cropped image
 def resize_image(img, width, height):
     """Resizes the image object to the specified dimensions"""
-    log("resizing the downloaded wallpaper")
+    logging.debug("Resizing the downloaded wallpaper...")
     return ImageOps.fit(img, (width, height), Image.ANTIALIAS)
 
 
@@ -48,7 +47,7 @@ def resize_image(img, width, height):
 # Out: (Image) output image with title
 def set_image_title(img, title, gravity, padding, fontsize):
     """Overlays the title of the image onto the image"""
-    log("setting title")
+    logging.debug("Setting title")
     # clean up the title and gravity strings
     title = remove_tags(title)
     gravity = gravity.lower().replace(' ', '').strip()

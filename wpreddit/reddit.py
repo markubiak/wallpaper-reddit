@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import re
@@ -9,21 +10,21 @@ from PIL import Image
 from .blacklist import Blacklist
 from .connection import connected
 from .config import cfg
-from .common import log, exit_msg
+from .common import exit_msg
 
 
 # in - string[] - list of subreddits to get links from
 # out - [string, string, string][] - a list of links from the subreddits and their respective titles and permalinks
 def get_links():
     """Takes in subreddits, converts them to a reddit json url, and then picks out urls and their titles"""
-    print("searching for valid images...")
+    logging.info("Searching for valid images...")
     if cfg['random_sub']:
-        parsed_subs = pick_random(cfg['subs'])
+        parsed_subs = random.choice(cfg['subs'])
     else:
         parsed_subs = '+'.join(cfg['subs'])
     url = "http://www.reddit.com/r/" + parsed_subs + "/" + cfg['sorting_alg'] + \
           ".json?limit=" + str(cfg['max_links'])
-    log("Grabbing json file " + url)
+    logging.debug("Grabbing json file " + url)
     r = requests.get(url, headers={'User-Agent': 'wallpaper-reddit python script: ' +
                                                  'github.com/markubiak/wallpaper-reddit'})
     data = json.loads("{}")  # warning suppression
@@ -50,7 +51,7 @@ def choose_valid(links):
     blacklist = Blacklist(cfg['dirs']['data'] + '/blacklist.txt')
     for i, origlink in enumerate(links):
         link = origlink[0]
-        log("checking link # {0}: {1}".format(i, link))
+        logging.debug("checking link # {0}: {1}".format(i, link))
         if not (link[-4:] == '.png' or link[-4:] == '.jpg' or link[-5:] == '.jpeg'):
             if re.search('(imgur\.com)(?!/a/)', link):
                 link = link.replace("/gallery", "")
@@ -87,17 +88,9 @@ def check_dimensions(url):
             if (dimensions[0] / dimensions[1]) >= cfg['min_dimensions']['ratio'] and \
                     dimensions[0] >= cfg['min_dimensions']['width'] and \
                     dimensions[1] >= cfg['min_dimensions']['height']:
-                        log("Size checks out")
+                        logging.debug("Size checks out")
                         return True
     except IOError:
-        log("Image dimensions could not be read")
+        logging.debug("Image dimensions could not be read")
     return False
-
-
-# in: a list of subreddits
-# out: the name of a random subreddit
-def pick_random(subreddits):
-    """Will pick a random sub from a list of subreddits"""
-    rand = random.randint(0, len(subreddits) - 1)
-    return subreddits[rand]
 
