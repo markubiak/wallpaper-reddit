@@ -68,7 +68,7 @@ def blacklist_current():
     if not os.path.isfile(cfg['dirs']['data'] + '/url.txt'):
         exit_msg("ERROR: " + cfg['dirs']['data'] + "/url.txt does not exist. "
                  "wallpaper-reddit must run once before you can blacklist a wallpaper.")
-    
+
     # Setup the blacklist and append to it
     blacklist = Blacklist(cfg['dirs']['data'] + '/url.txt')
     with open(cfg['dirs']['data'] + '/url.txt', 'r') as urlfile:

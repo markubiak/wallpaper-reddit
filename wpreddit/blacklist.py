@@ -15,7 +15,7 @@ class Blacklist:
         self._fname = filename
         self.blacklist = []
         self.reload()
-        
+
 
     def reload(self):
 
