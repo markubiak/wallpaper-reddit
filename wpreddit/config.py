@@ -3,7 +3,9 @@ import configparser
 import os
 import platform
 from pkg_resources import resource_string
-from wpreddit.common import log, exit_msg, set_verbose
+
+from .common import log, exit_msg, set_verbose
+
 
 # global config dictionary, init to working defaults
 cfg = {

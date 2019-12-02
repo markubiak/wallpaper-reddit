@@ -6,10 +6,10 @@ import requests
 import sys
 from PIL import Image
 
-from wpreddit import connection
-from wpreddit.blacklist import Blacklist
-from wpreddit.config import cfg
-from wpreddit.common import log, exit_msg
+from .blacklist import Blacklist
+from .connection import connected
+from .config import cfg
+from .common import log, exit_msg
 
 
 # in - string[] - list of subreddits to get links from
@@ -57,7 +57,7 @@ def choose_valid(links):
                 link += ".jpg"
             else:
                 continue
-        if not connection.connected(link) and check_dimensions(link) and not blacklist.is_blacklisted(link):
+        if not connected(link) and check_dimensions(link) and not blacklist.is_blacklisted(link):
             continue
 
         def check_same_url(link):

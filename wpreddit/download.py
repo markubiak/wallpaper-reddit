@@ -5,7 +5,7 @@ import requests
 import sys
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-from wpreddit.common import log
+from .common import log
 
 
 # In:  (String) direct url of the image to download

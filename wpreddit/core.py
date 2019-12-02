@@ -3,21 +3,25 @@ import random
 import sys
 from pkg_resources import resource_string
 from subprocess import check_call, CalledProcessError
-from wpreddit import config, connection, download, reddit, wallpaper
-from wpreddit.blacklist import Blacklist
-from wpreddit.common import log, exit_msg
+
+from .blacklist import Blacklist
+from .common import log, exit_msg
+from .config import init_config, cfg
+from .connection import wait_for_connection, connected_to_reddit
+from .download import download_image, save_info
+from .reddit import get_links, choose_valid
+from .wallpaper import save_wallpaper, set_wallpaper
 
 
 def run():
     try:
-        config.init_config()
-        cfg = config.cfg
+        init_config()
         # switch based on action
         if cfg['mode'] == "blacklist_current":
             blacklist_current()
             sys.exit(0)
         elif cfg['mode'] == "save_current":
-            wallpaper.save_wallpaper()
+            save_wallpaper()
             sys.exit(0)
         elif cfg['mode'] == "gen_autostart":
             if cfg['opsys'] == "Linux":
@@ -34,20 +38,20 @@ def run():
         # normal mode
         if cfg['mode'] == 'startup':
             # give it a bit to potentially connect to wifi
-            connection.wait_for_connection(cfg.startup.attempts, cfg.startup.interval)
+            wait_for_connection(cfg.startup.attempts, cfg.startup.interval)
         else:
             # exit if no internet connection
-            if not connection.connected_to_reddit():
+            if not connected_to_reddit():
                 exit_msg("ERROR: You do not appear to be connected to Reddit. Exiting")
-        links = reddit.get_links()
-        valid = reddit.choose_valid(links)
-        img = download.download_image(valid[0])
+        links = get_links()
+        valid = choose_valid(links)
+        img = download_image(valid[0])
         if cfg['os'] == "Windows":
             img.save(cfg['dirs']['data'] + '\\wallpaper.bmp', "BMP")
         else:
             img.save(cfg['dirs']['data'] + '/wallpaper.jpg', "JPEG")
-        download.save_info(cfg['dirs']['data'], valid[0], valid[1], valid[2])
-        wallpaper.set_wallpaper()
+        save_info(cfg['dirs']['data'], valid[0], valid[1], valid[2])
+        set_wallpaper()
         external_script(cfg['dirs']['data'] + cfg['external_script'])
     except KeyboardInterrupt:
         sys.exit(1)
@@ -73,7 +77,6 @@ def blacklist_current():
 
 # creates and runs the ~/.local/share/wallpaper-reddit/external.sh script
 def external_script(path):
-    cfg = config.cfg
     if cfg['os'] == 'Linux' or cfg['os'] == 'Darwin':
         try:
             if not os.path.isfile(path):

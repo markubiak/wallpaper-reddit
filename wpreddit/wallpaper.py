@@ -5,8 +5,8 @@ import re
 import shutil
 from subprocess import check_call, check_output, CalledProcessError
 
-from wpreddit.common import log, exit_msg
-from wpreddit.config import cfg
+from .common import log, exit_msg
+from .config import cfg
 
 
 def set_wallpaper():

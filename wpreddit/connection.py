@@ -4,8 +4,8 @@ import platform
 import requests
 import time
 
-from wpreddit.common import log
-from wpreddit.config import cfg
+from .common import log
+from .config import cfg
 
 
 # Out: (boolean) connection status for reddit.com
