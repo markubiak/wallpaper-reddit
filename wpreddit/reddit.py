@@ -7,6 +7,7 @@ import sys
 from PIL import Image
 
 from wpreddit import connection
+from wpreddit.blacklist import Blacklist
 from wpreddit.config import cfg
 from wpreddit.common import log, exit_msg
 
@@ -46,6 +47,7 @@ def choose_valid(links):
     is within the proper dimensions, and is not blacklisted"""
     if len(links) == 0:
         exit_msg("No links were returned from any of those subreddits. Are they valid?")
+    blacklist = Blacklist(cfg['dirs']['data'] + '/blacklist.txt')
     for i, origlink in enumerate(links):
         link = origlink[0]
         log("checking link # {0}: {1}".format(i, link))
@@ -55,7 +57,7 @@ def choose_valid(links):
                 link += ".jpg"
             else:
                 continue
-        if not connection.connected(link) and check_dimensions(link) and check_blacklist(link):
+        if not connection.connected(link) and check_dimensions(link) and not blacklist.is_blacklisted(link):
             continue
 
         def check_same_url(link):
@@ -99,25 +101,3 @@ def pick_random(subreddits):
     rand = random.randint(0, len(subreddits) - 1)
     return subreddits[rand]
 
-
-# in - string - a url to match against the blacklist
-# out - boolean - whether the url is blacklisted
-def check_blacklist(url):
-    """Checks to see if the url is on the blacklist or not (True means the link is good)"""
-    with open(cfg['dirs']['data'] + '/blacklist.txt', 'r') as blacklist:
-        bl_links = blacklist.read().split('\n')
-    for link in bl_links:
-        if link == url:
-            return False
-    return True
-
-
-def blacklist_current():
-    """Blacklists the current wallpaper, as listed in the ~/.wallpaper/url.txt file"""
-    if not os.path.isfile(cfg['dirs']['data'] + '/url.txt'):
-        exit_msg("ERROR: " + cfg['dirs']['data'] + "/url.txt does not exist. "
-                 "wallpaper-reddit must run once before you can blacklist a wallpaper.")
-    with open(cfg['dirs']['data'] + '/url.txt', 'r') as urlfile:
-        url = urlfile.read()
-    with open(cfg['dirs']['data'] + '/blacklist.txt', 'a') as blacklist:
-        blacklist.write(url + '\n')

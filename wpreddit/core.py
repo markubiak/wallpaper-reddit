@@ -4,6 +4,7 @@ import sys
 from pkg_resources import resource_string
 from subprocess import check_call, CalledProcessError
 from wpreddit import config, connection, download, reddit, wallpaper
+from wpreddit.blacklist import Blacklist
 from wpreddit.common import log, exit_msg
 
 
@@ -13,7 +14,7 @@ def run():
         cfg = config.cfg
         # switch based on action
         if cfg['mode'] == "blacklist_current":
-            reddit.blacklist_current()
+            blacklist_current()
             sys.exit(0)
         elif cfg['mode'] == "save_current":
             wallpaper.save_wallpaper()
@@ -52,6 +53,24 @@ def run():
         sys.exit(1)
 
 
+def blacklist_current():
+
+    """
+    Reads URL of currently set wallpaper and adds it to the blacklist
+    """
+
+    # Sanity check
+    if not os.path.isfile(cfg['dirs']['data'] + '/url.txt'):
+        exit_msg("ERROR: " + cfg['dirs']['data'] + "/url.txt does not exist. "
+                 "wallpaper-reddit must run once before you can blacklist a wallpaper.")
+    
+    # Setup the blacklist and append to it
+    blacklist = Blacklist(cfg['dirs']['data'] + '/url.txt')
+    with open(cfg['dirs']['data'] + '/url.txt', 'r') as urlfile:
+        url = urlfile.read()
+    blacklist.add(url)
+
+
 # creates and runs the ~/.local/share/wallpaper-reddit/external.sh script
 def external_script(path):
     cfg = config.cfg
@@ -67,4 +86,6 @@ def external_script(path):
         except CalledProcessError or FileNotFoundError:
             print("%s did not execute successfully, check for errors." % path)
 
+if __name__ == '__main__':
+    run()
 
