@@ -1,5 +1,5 @@
 # NOTICE  
-I have not recently had the time to maintain and bug fix this project. I am seeking for a developer that is willing to maintain this project and potentially implement new features. Please reach out to me at mkubiak.dev at gmail dot com if you are interested in assisting with the project and have experience with Python.  
+I have not recently had the time to maintain and bug fix this project. Thus, I have put the repo into readonly mode. I am seeking for a developer that is willing to maintain this project and potentially implement new features. Please reach out to me at mkubiak dot dev at gmail dot com if you are interested in taking over the project and have good DevOps/Python experience. I'm happy to point to actively maintained forks, and someone could wrap up the v4 branch if they have time. It's very close to completion.
 
 # wallpaper-reddit
 ## About
